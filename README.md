@@ -1,9 +1,12 @@
-# BallenManager Team
+# BallenManager Team – Version 3
 
-Team-Version mit Supabase-Anmeldung und gemeinsamer Datenbank.
+Neue Struktur:
+- Start-Dashboard
+- Verkauf als Hauptbereich mit Untermenü **Ballen**
+- Kundenverwaltung
+- Aufträge & Reservierungen mit Status
+- Zahlungsstatus
+- Bestand: Gesamt / reserviert / frei
+- automatische Bestandsbuchung bei Lieferung/Abholung/Abschluss
 
-## Team
-- Admin: eliasbraxx@gmail.com
-- 3 weitere freigegebene Team-Adressen
-
-Nach dem Upload über GitHub Pages öffnen und pro Nutzer über „Konto erstmalig anlegen“ ein Passwort festlegen.
+Die Daten werden gemeinsam über Supabase synchronisiert.

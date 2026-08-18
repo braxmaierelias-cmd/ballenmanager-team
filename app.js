@@ -1,81 +1,24 @@
-const SUPABASE_URL="https://hejaptzggbyqjjzireev.supabase.co";
-const SUPABASE_KEY="sb_publishable_FVs1qFyjyqHnr8m_4YvEaw_uZqModyE";
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const $=id=>document.getElementById(id);
-const money=n=>(+n||0).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
-let sales=[], inventory=[];
-
-function calc(){
- let q=+$('qty').value||0,u=+$('unit').value||0,k=+$('km').value||0,p=+$('kmprice').value||0;
- let transport=k*p*($('roundtrip').checked?2:1);
- let total=q*u+transport;$('total').textContent=money(total);return {total,km:k*($('roundtrip').checked?2:1)};
-}
-['qty','unit','km','kmprice','roundtrip'].forEach(x=>$(x).addEventListener('input',calc));
-
-async function sessionUI(){
- const {data:{session}}=await db.auth.getSession();
- if(!session){ $('authCard').hidden=false;$('app').hidden=true;return; }
- $('authCard').hidden=true;$('app').hidden=false;$('userEmail').textContent=session.user.email;
- const {data:p}=await db.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
- $('role').textContent=p?.role==='admin'?'Administrator':'Teammitglied';
- await loadAll();
-}
-
-$('login').onclick=async()=>{
- $('authMsg').textContent='Anmeldung läuft …';
- const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
- $('authMsg').textContent=error?error.message:''; if(!error) sessionUI();
-};
-$('signup').onclick=async()=>{
- $('authMsg').textContent='Konto wird angelegt …';
- const email=$('email').value.trim();
- const allowed=['eliasbraxx@gmail.com','bweers@streitert-hexe.de','larsst00@web.de','simonburnikel9@gmail.com'];
- if(!allowed.includes(email.toLowerCase())){ $('authMsg').textContent='Diese E-Mail ist nicht für das Team freigegeben.';return; }
- const {error}=await db.auth.signUp({email,password:$('password').value});
- $('authMsg').textContent=error?error.message:'Konto angelegt. Falls Supabase eine Bestätigung verlangt, E-Mail bestätigen und danach anmelden.';
-};
-$('logout').onclick=async()=>{await db.auth.signOut();sessionUI();};
-
-async function loadAll(){
- const [s,i]=await Promise.all([
-   db.from('sales').select('*').order('created_at',{ascending:false}),
-   db.from('inventory').select('*').order('product')
- ]);
- sales=s.data||[];inventory=i.data||[];render();
-}
-
-function render(){
- $('sold').textContent=sales.reduce((a,s)=>a+(+s.quantity||0),0);
- $('revenue').textContent=money(sales.reduce((a,s)=>a+(+s.total||0),0));
- $('sales').innerHTML=sales.length?sales.map(s=>`<div class="sale"><b>${s.quantity} × ${s.product} – ${money(s.total)}</b><span>${new Date(s.created_at).toLocaleString('de-DE')}${s.customer?' · '+s.customer:''} · Stück ${(+s.unit_price).toFixed(2)} € · ${s.kilometers} km</span></div>`).join(''):'<p>Noch keine Verkäufe gespeichert.</p>';
- $('inventory').innerHTML=inventory.map(i=>`<div class="invrow"><div><b>${i.product}</b><small>Bestand / Standardpreis</small></div><input data-q="${i.id}" type="number" min="0" value="${i.quantity}"><input data-p="${i.id}" type="number" min="0" step=".01" value="${i.default_unit_price}"></div>`).join('');
- document.querySelectorAll('[data-q],[data-p]').forEach(el=>el.onchange=saveInventory);
- const selected=inventory.find(i=>i.product===$('product').value);if(selected && +$('unit').value===0)$('unit').value=selected.default_unit_price;
- calc();
-}
-$('product').onchange=()=>{const i=inventory.find(x=>x.product===$('product').value);if(i)$('unit').value=i.default_unit_price;calc();};
-
-async function saveInventory(e){
- const id=+e.target.dataset.q||+e.target.dataset.p;
- const row=inventory.find(x=>x.id===id); if(!row)return;
- const q=document.querySelector(`[data-q="${id}"]`),p=document.querySelector(`[data-p="${id}"]`);
- const {data:{user}}=await db.auth.getUser();
- const {error}=await db.from('inventory').update({quantity:+q.value||0,default_unit_price:+p.value||0,updated_at:new Date().toISOString(),updated_by:user.id}).eq('id',id);
- if(error)alert(error.message);else await loadAll();
-}
-
-$('save').onclick=async()=>{
- const q=+$('qty').value||0;if(q<=0)return alert('Bitte Anzahl Ballen eingeben.');
- const {data:{user}}=await db.auth.getUser();const c=calc();
- const payload={created_by:user.id,customer:$('customer').value.trim()||null,product:$('product').value,quantity:q,unit_price:+$('unit').value||0,kilometers:c.km,kilometer_price:+$('kmprice').value||0};
- const {error}=await db.from('sales').insert(payload);if(error)return alert(error.message);
- const inv=inventory.find(i=>i.product===payload.product);if(inv)await db.from('inventory').update({quantity:Math.max(0,inv.quantity-q),updated_at:new Date().toISOString(),updated_by:user.id}).eq('id',inv.id);
- await loadAll();alert('Verkauf gespeichert und synchronisiert.');
-};
-
-$('export').onclick=()=>{
- let rows=[['Datum','Kunde','Produkt','Anzahl','Stückpreis','Kilometer','Kilometerpreis','Gesamt'],...sales.map(s=>[new Date(s.created_at).toLocaleString('de-DE'),s.customer||'',s.product,s.quantity,s.unit_price,s.kilometers,s.kilometer_price,s.total])];
- let csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\n');
- let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ballenmanager-verkaeufe.csv';a.click();
-};
+const SUPABASE_URL='https://hejaptzggbyqjjzireev.supabase.co';
+const SUPABASE_KEY='sb_publishable_FVs1qFyjyqHnr8m_4YvEaw_uZqModyE';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY),$=id=>document.getElementById(id),money=n=>(+n||0).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
+const labels={reserviert:'Reserviert',bestaetigt:'Bestätigt',bereit:'Bereit',lieferung_geplant:'Lieferung geplant',geliefert:'Geliefert',abgeholt:'Abgeholt',abgeschlossen:'Abgeschlossen',storniert:'Storniert'};
+const reservedStatuses=new Set(['reserviert','bestaetigt','bereit','lieferung_geplant']),commitStatuses=new Set(['geliefert','abgeholt','abgeschlossen']);let inventory=[],customers=[],orders=[],currentUser=null;
+function navTo(page){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));$('page-'+page).classList.add('active');document.querySelector(`.nav button[data-page="${page}"]`)?.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>navTo(b.dataset.page));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>navTo(b.dataset.goto));
+async function sessionUI(){const {data:{session}}=await db.auth.getSession();if(!session){currentUser=null;$('authCard').hidden=false;$('app').hidden=true;return}currentUser=session.user;$('authCard').hidden=true;$('app').hidden=false;$('userEmail').textContent=currentUser.email;const {data:p}=await db.from('profiles').select('role').eq('id',currentUser.id).maybeSingle();$('role').textContent=p?.role==='admin'?'Administrator':'Teammitglied';await loadAll()}
+$('login').onclick=async()=>{$('authMsg').textContent='Anmeldung läuft …';const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('authMsg').textContent=error?error.message:'';if(!error)sessionUI()};$('logout').onclick=async()=>{await db.auth.signOut();sessionUI()};
+async function loadAll(){const [i,c,o]=await Promise.all([db.from('inventory').select('*').order('product'),db.from('customers').select('*').order('name'),db.from('orders').select('*,customers(id,name,company,phone),order_items(*)').order('created_at',{ascending:false})]);inventory=i.data||[];customers=c.data||[];orders=o.data||[];renderAll()}
+function orderValue(o){const goods=(o.order_items||[]).reduce((a,x)=>a+(+x.quantity||0)*(+x.unit_price||0),0);return goods+(+o.kilometers||0)*(+o.kilometer_price||0)}function reservedByProduct(product){return orders.filter(o=>reservedStatuses.has(o.status)).flatMap(o=>o.order_items||[]).filter(x=>x.product===product).reduce((a,x)=>a+(+x.quantity||0),0)}function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function renderAll(){renderCustomerOptions();renderDashboard();renderCustomers();renderOrders();renderInventory();syncProductPrice();calcOrder()}
+function renderCustomerOptions(){$('orderCustomer').innerHTML='<option value="">Kunde auswählen …</option>'+customers.map(c=>`<option value="${c.id}">${escapeHtml(c.company||c.name)}${c.company?' · '+escapeHtml(c.name):''}</option>`).join('')}
+function renderDashboard(){const open=orders.filter(o=>!['abgeschlossen','storniert'].includes(o.status));$('kpiOpen').textContent=open.length;$('kpiReserved').textContent=inventory.reduce((a,i)=>a+reservedByProduct(i.product),0);$('kpiDelivery').textContent=orders.filter(o=>o.status==='lieferung_geplant').length;$('kpiPayment').textContent=orders.filter(o=>o.payment_status!=='bezahlt'&&o.status!=='storniert').length;$('recentOrders').innerHTML=orders.slice(0,5).map(orderCard).join('')||'<div class="empty">Noch keine Aufträge vorhanden.</div>';$('stockSummary').innerHTML=inventory.map(i=>{const r=reservedByProduct(i.product),free=Math.max(0,(+i.quantity||0)-r);return `<div class="stock-row"><div><b>${i.product}</b></div><div class="metric"><b>${i.quantity}</b><small>Gesamt</small></div><div class="metric"><b>${r}</b><small>Reserviert</small></div><div class="metric"><b>${free}</b><small>Frei</small></div></div>`}).join('')}
+$('addCustomer').onclick=async()=>{const name=$('custName').value.trim();if(!name)return alert('Bitte einen Kundennamen eingeben.');const payload={name,company:$('custCompany').value.trim()||null,phone:$('custPhone').value.trim()||null,email:$('custEmail').value.trim()||null,address:$('custAddress').value.trim()||null,notes:$('custNotes').value.trim()||null,created_by:currentUser.id};const {error}=await db.from('customers').insert(payload);if(error)return alert(error.message);['custName','custCompany','custPhone','custEmail','custAddress','custNotes'].forEach(x=>$(x).value='');await loadAll()};$('customerSearch').oninput=renderCustomers;
+function renderCustomers(){const q=($('customerSearch')?.value||'').toLowerCase(),rows=customers.filter(c=>[c.name,c.company,c.phone,c.email].join(' ').toLowerCase().includes(q));$('customerList').innerHTML=rows.map(c=>{const os=orders.filter(o=>o.customer_id===c.id);return `<div class="customer-card"><h4>${escapeHtml(c.company||c.name)}</h4><p>${c.company?escapeHtml(c.name)+' · ':''}${escapeHtml(c.phone||'')}${c.email?' · '+escapeHtml(c.email):''}</p><p>${os.length} Auftrag/Aufträge · ${money(os.reduce((a,o)=>a+orderValue(o),0))} Auftragswert</p>${c.address?`<p>${escapeHtml(c.address)}</p>`:''}</div>`}).join('')||'<div class="empty">Keine Kunden gefunden.</div>'}
+function calcOrder(){const q=+$('orderQty').value||0,u=+$('orderUnit').value||0,km=+$('orderKm').value||0,kp=+$('orderKmPrice').value||0,billedKm=km*($('orderRoundtrip').checked?2:1);$('orderTotal').textContent=money(q*u+billedKm*kp);return billedKm}['orderQty','orderUnit','orderKm','orderKmPrice','orderRoundtrip'].forEach(id=>$(id).addEventListener('input',calcOrder));$('orderProduct').onchange=syncProductPrice;function syncProductPrice(){const i=inventory.find(x=>x.product===$('orderProduct').value);if(i)$('orderUnit').value=i.default_unit_price||0;calcOrder()}
+$('createOrder').onclick=async()=>{const customer_id=+$('orderCustomer').value||null;if(!customer_id)return alert('Bitte zuerst einen Kunden auswählen.');const quantity=+$('orderQty').value||0;if(quantity<=0)return alert('Bitte eine Menge eingeben.');const product=$('orderProduct').value,free=Math.max(0,(inventory.find(i=>i.product===product)?.quantity||0)-reservedByProduct(product)),status=$('orderStatus').value;if(reservedStatuses.has(status)&&quantity>free&&!confirm(`Nur ${free} ${product}-Ballen sind frei verfügbar. Auftrag trotzdem anlegen?`))return;const kilometers=calcOrder(),orderPayload={customer_id,order_type:'Ballen',status,payment_status:'offen',delivery_type:$('deliveryType').value,delivery_date:$('deliveryDate').value||null,kilometers,kilometer_price:+$('orderKmPrice').value||0,notes:$('orderNotes').value.trim()||null,created_by:currentUser.id};const {data:o,error}=await db.from('orders').insert(orderPayload).select().single();if(error)return alert(error.message);const {error:itemErr}=await db.from('order_items').insert({order_id:o.id,product,quantity,unit_price:+$('orderUnit').value||0});if(itemErr){await db.from('orders').delete().eq('id',o.id);return alert(itemErr.message)}$('orderNotes').value='';$('orderQty').value=1;await loadAll();navTo('auftraege')};
+$('orderFilter').onchange=renderOrders;$('orderSearch').oninput=renderOrders;function orderCard(o){const c=o.customers||{},item=(o.order_items||[])[0]||{},date=o.delivery_date?new Date(o.delivery_date+'T12:00:00').toLocaleDateString('de-DE'):'kein Termin';return `<div class="order-card"><div class="order-top"><div><h4>#${o.id} · ${escapeHtml(c.company||c.name||'Ohne Kunde')}</h4><p>${item.quantity||0} × ${escapeHtml(item.product||o.order_type)} · ${money(orderValue(o))} · ${o.delivery_type} · ${date}</p></div><span class="badge ${o.status}">${labels[o.status]||o.status}</span></div><p>Zahlung: <b>${o.payment_status==='bezahlt'?'Bezahlt':o.payment_status==='teilbezahlt'?'Teilbezahlt':'Offen'}</b>${o.notes?' · '+escapeHtml(o.notes):''}</p><div class="order-actions"><select data-status="${o.id}">${Object.entries(labels).map(([k,v])=>`<option value="${k}" ${o.status===k?'selected':''}>${v}</option>`).join('')}</select><select data-pay="${o.id}"><option value="offen" ${o.payment_status==='offen'?'selected':''}>Zahlung offen</option><option value="teilbezahlt" ${o.payment_status==='teilbezahlt'?'selected':''}>Teilbezahlt</option><option value="bezahlt" ${o.payment_status==='bezahlt'?'selected':''}>Bezahlt</option></select></div></div>`}
+function renderOrders(){if(!$('orderList'))return;const f=$('orderFilter').value,q=$('orderSearch').value.toLowerCase(),rows=orders.filter(o=>(!f||o.status===f)&&[o.customers?.name,o.customers?.company,o.id].join(' ').toLowerCase().includes(q));$('orderList').innerHTML=rows.map(orderCard).join('')||'<div class="empty">Keine Aufträge gefunden.</div>';document.querySelectorAll('[data-status]').forEach(x=>x.onchange=changeStatus);document.querySelectorAll('[data-pay]').forEach(x=>x.onchange=changePayment)}
+async function changePayment(e){const id=+e.target.dataset.pay,{error}=await db.from('orders').update({payment_status:e.target.value,updated_at:new Date().toISOString()}).eq('id',id);if(error)alert(error.message);else await loadAll()}
+async function changeStatus(e){const id=+e.target.dataset.status,newStatus=e.target.value,o=orders.find(x=>x.id===id);if(!o)return;if(commitStatuses.has(newStatus)&&!o.stock_committed){for(const item of o.order_items||[]){const inv=inventory.find(i=>i.product===item.product);if(inv){const newQty=Math.max(0,(+inv.quantity||0)-(+item.quantity||0)),{error}=await db.from('inventory').update({quantity:newQty,updated_at:new Date().toISOString(),updated_by:currentUser.id}).eq('id',inv.id);if(error)return alert(error.message)}}await db.from('orders').update({status:newStatus,stock_committed:true,updated_at:new Date().toISOString()}).eq('id',id)}else if(newStatus==='storniert'&&o.stock_committed){for(const item of o.order_items||[]){const inv=inventory.find(i=>i.product===item.product);if(inv)await db.from('inventory').update({quantity:(+inv.quantity||0)+(+item.quantity||0),updated_at:new Date().toISOString(),updated_by:currentUser.id}).eq('id',inv.id)}await db.from('orders').update({status:newStatus,stock_committed:false,updated_at:new Date().toISOString()}).eq('id',id)}else{const {error}=await db.from('orders').update({status:newStatus,updated_at:new Date().toISOString()}).eq('id',id);if(error)return alert(error.message)}await loadAll()}
+function renderInventory(){$('inventory').innerHTML=inventory.map(i=>{const r=reservedByProduct(i.product),free=Math.max(0,(+i.quantity||0)-r);return `<div class="stock-row"><div><b>${i.product}</b><div class="inv-edit"><label>Gesamtbestand<input data-iq="${i.id}" type="number" min="0" value="${i.quantity}"></label><label>Standardpreis<input data-ip="${i.id}" type="number" min="0" step=".01" value="${i.default_unit_price}"></label></div></div><div class="metric"><b>${i.quantity}</b><small>Gesamt</small></div><div class="metric"><b>${r}</b><small>Reserviert</small></div><div class="metric"><b>${free}</b><small>Frei</small></div></div>`}).join('');document.querySelectorAll('[data-iq],[data-ip]').forEach(x=>x.onchange=saveInventory)}
+async function saveInventory(e){const id=+(e.target.dataset.iq||e.target.dataset.ip),q=document.querySelector(`[data-iq="${id}"]`),p=document.querySelector(`[data-ip="${id}"]`),{error}=await db.from('inventory').update({quantity:+q.value||0,default_unit_price:+p.value||0,updated_at:new Date().toISOString(),updated_by:currentUser.id}).eq('id',id);if(error)alert(error.message);else await loadAll()}
 db.auth.onAuthStateChange(()=>sessionUI());sessionUI();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');

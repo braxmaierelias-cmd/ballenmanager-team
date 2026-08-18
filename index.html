@@ -1,56 +1,13 @@
-<!doctype html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#234d20">
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
-<title>BallenManager Team</title>
-</head>
-<body>
-<header><h1>🌾 BallenManager</h1><p>Team · Verkauf · Bestand · Preisrechner</p></header>
+<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f5b2b"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><title>BallenManager Team</title></head><body>
+<header class="topbar"><div class="brand"><span class="brand-icon">🌾</span><div><h1>BallenManager</h1><p>Team · Verkauf · Aufträge · Bestand</p></div></div></header>
 <main>
-<section id="authCard" class="card">
-<h2>Anmelden</h2>
-<p class="muted">Melde dich mit deinem Team-Konto an.</p>
-<label>E-Mail</label><input id="email" type="email" autocomplete="email">
-<label>Passwort</label><input id="password" type="password" autocomplete="current-password">
-<button id="login">Anmelden</button>
-<button class="secondary" id="signup">Konto erstmalig anlegen</button>
-<p id="authMsg" class="muted"></p>
-</section>
-
+<section id="authCard" class="card auth-card"><h2>Anmelden</h2><p class="muted">Melde dich mit deinem Team-Konto an.</p><label>E-Mail</label><input id="email" type="email" autocomplete="email"><label>Passwort</label><input id="password" type="password" autocomplete="current-password"><button id="login">Anmelden</button><p id="authMsg" class="muted"></p></section>
 <div id="app" hidden>
-<section class="card teambar"><div><b id="userEmail"></b><small id="role"></small></div><button class="secondary compact" id="logout">Abmelden</button></section>
-
-<section class="card">
-<h2>Preis berechnen</h2>
-<label>Kunde</label><input id="customer" placeholder="optional">
-<label>Produkt</label><select id="product"><option>Stroh</option><option>Heu</option></select>
-<label>Anzahl Ballen</label><input id="qty" type="number" min="1" value="1">
-<label>Stückpreis (€)</label><input id="unit" type="number" min="0" step="0.01" value="0">
-<label>Entfernung einfach (km)</label><input id="km" type="number" min="0" step="0.1" value="0">
-<label>Kilometerpreis (€ / km)</label><input id="kmprice" type="number" min="0" step="0.01" value="0">
-<label><input id="roundtrip" type="checkbox" checked> Hin- und Rückfahrt berechnen</label>
-<div class="result"><span>Gesamtpreis</span><strong id="total">0,00 €</strong></div>
-<button id="save">Verkauf speichern</button>
-</section>
-
-<section class="card">
-<h2>Bestand</h2>
-<div id="inventory"></div>
-</section>
-
-<section class="card">
-<h2>Verkaufsregister</h2>
-<div class="stats"><div><b id="sold">0</b><small>Ballen verkauft</small></div><div><b id="revenue">0,00 €</b><small>Umsatz</small></div></div>
-<div id="sales"></div>
-<button class="secondary" id="export">CSV exportieren</button>
-</section>
-</div>
-</main>
-<footer>Gemeinsame Team-Datenbank · BallenManager</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
-</body></html>
+<section class="userbar card"><div><b id="userEmail"></b><small id="role"></small></div><button class="secondary compact" id="logout">Abmelden</button></section>
+<nav class="nav"><button data-page="start" class="active">🏠<span>Start</span></button><button data-page="verkauf">🛒<span>Verkauf</span></button><button data-page="kunden">👥<span>Kunden</span></button><button data-page="auftraege">📋<span>Aufträge</span></button><button data-page="bestand">📦<span>Bestand</span></button></nav>
+<section id="page-start" class="page active"><div class="page-title"><div><h2>Übersicht</h2><p>Das Wichtigste auf einen Blick</p></div></div><div class="kpis"><div class="kpi"><span>Offene Aufträge</span><b id="kpiOpen">0</b></div><div class="kpi"><span>Reservierte Ballen</span><b id="kpiReserved">0</b></div><div class="kpi"><span>Lieferungen geplant</span><b id="kpiDelivery">0</b></div><div class="kpi"><span>Offene Zahlungen</span><b id="kpiPayment">0</b></div></div><section class="card"><div class="section-head"><h3>Aktuelle Aufträge</h3><button class="linkbtn" data-goto="auftraege">Alle anzeigen</button></div><div id="recentOrders"></div></section><section class="card"><h3>Bestandsübersicht</h3><div id="stockSummary"></div></section></section>
+<section id="page-verkauf" class="page"><div class="page-title"><div><h2>Verkauf</h2><p>Verkaufsbereiche und Preisberechnung</p></div></div><div class="submenu-grid"><button class="submenu-card active"><span>🌾</span><b>Ballen</b><small>Stroh & Heu</small></button><button class="submenu-card disabled"><span>➕</span><b>Weitere Kategorie</b><small>später ergänzen</small></button></div><section class="card"><h3>Ballen · Auftrag / Reservierung</h3><div class="form-grid"><div class="full"><label>Kunde</label><select id="orderCustomer"></select></div><div><label>Produkt</label><select id="orderProduct"><option>Stroh</option><option>Heu</option></select></div><div><label>Anzahl Ballen</label><input id="orderQty" type="number" min="1" value="1"></div><div><label>Stückpreis (€)</label><input id="orderUnit" type="number" min="0" step="0.01" value="0"></div><div><label>Status</label><select id="orderStatus"><option value="reserviert">Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">Bereit</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option><option value="abgeschlossen">Abgeschlossen</option></select></div><div><label>Lieferart</label><select id="deliveryType"><option>Abholung</option><option>Lieferung</option></select></div><div><label>Termin</label><input id="deliveryDate" type="date"></div><div><label>Entfernung einfach (km)</label><input id="orderKm" type="number" min="0" step="0.1" value="0"></div><div><label>Kilometerpreis (€)</label><input id="orderKmPrice" type="number" min="0" step="0.01" value="0"></div><div class="full checkline"><label><input id="orderRoundtrip" type="checkbox" checked> Hin- und Rückfahrt berechnen</label></div><div class="full"><label>Notiz</label><textarea id="orderNotes" placeholder="z. B. Abholung Samstag 10 Uhr"></textarea></div></div><div class="result"><span>Auftragswert</span><strong id="orderTotal">0,00 €</strong></div><button id="createOrder">Auftrag / Reservierung anlegen</button></section></section>
+<section id="page-kunden" class="page"><div class="page-title"><div><h2>Kunden</h2><p>Kundendaten und Auftragshistorie</p></div></div><section class="card"><h3>Neuen Kunden anlegen</h3><div class="form-grid"><div><label>Name *</label><input id="custName"></div><div><label>Firma</label><input id="custCompany"></div><div><label>Telefon</label><input id="custPhone" type="tel"></div><div><label>E-Mail</label><input id="custEmail" type="email"></div><div class="full"><label>Adresse</label><input id="custAddress"></div><div class="full"><label>Notizen</label><textarea id="custNotes"></textarea></div></div><button id="addCustomer">Kunde speichern</button></section><section class="card"><div class="section-head"><h3>Kundenliste</h3><input id="customerSearch" class="search-small" placeholder="Suchen …"></div><div id="customerList"></div></section></section>
+<section id="page-auftraege" class="page"><div class="page-title"><div><h2>Aufträge & Reservierungen</h2><p>Status, Lieferung und Zahlung verwalten</p></div></div><section class="card"><div class="filters"><select id="orderFilter"><option value="">Alle Status</option><option value="reserviert">Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">Bereit</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option><option value="abgeschlossen">Abgeschlossen</option><option value="storniert">Storniert</option></select><input id="orderSearch" placeholder="Kunde suchen …"></div><div id="orderList"></div></section></section>
+<section id="page-bestand" class="page"><div class="page-title"><div><h2>Bestand</h2><p>Gesamt · Reserviert · Frei verfügbar</p></div></div><section class="card"><div id="inventory"></div><p class="muted">Reservierte Mengen werden automatisch aus offenen Reservierungen/Aufträgen berechnet.</p></section></section>
+</div></main><footer>Gemeinsame Team-Datenbank · BallenManager</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script></body></html>
