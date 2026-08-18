@@ -1,6 +1,9 @@
 # BallenManager Team
 
-Einfache Web-App für Ballenverkauf, Verkaufsregister und Preisberechnung inklusive Kilometerkosten.
+Team-Version mit Supabase-Anmeldung und gemeinsamer Datenbank.
 
-## GitHub Pages
-Nach dem Upload: Repository → Settings → Pages → Deploy from a branch → main / root → Save.
+## Team
+- Admin: eliasbraxx@gmail.com
+- 3 weitere freigegebene Team-Adressen
+
+Nach dem Upload über GitHub Pages öffnen und pro Nutzer über „Konto erstmalig anlegen“ ein Passwort festlegen.

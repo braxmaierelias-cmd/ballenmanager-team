@@ -1,1 +1,56 @@
-<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#234d20"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><title>BallenManager</title></head><body><header><h1>🌾 BallenManager</h1><p>Verkauf · Bestand · Preisrechner</p></header><main><section class="card"><h2>Preis berechnen</h2><label>Produkt</label><select id="product"><option>Stroh</option><option>Heu</option><option>Silage</option><option>Sonstiges</option></select><label>Anzahl Ballen</label><input id="qty" type="number" min="0" value="1"><label>Stückpreis (€)</label><input id="unit" type="number" min="0" step="0.01" value="0"><label>Entfernung einfach (km)</label><input id="km" type="number" min="0" step="0.1" value="0"><label>Kilometerpreis (€ / km)</label><input id="kmprice" type="number" min="0" step="0.01" value="0"><label><input id="roundtrip" type="checkbox" checked> Hin- und Rückfahrt berechnen</label><div class="result"><span>Gesamtpreis</span><strong id="total">0,00 €</strong></div><button id="save">Verkauf speichern</button></section><section class="card"><h2>Register</h2><div class="stats"><div><b id="sold">0</b><small>Ballen verkauft</small></div><div><b id="revenue">0,00 €</b><small>Umsatz</small></div></div><div id="sales"></div><button class="secondary" id="export">CSV exportieren</button><button class="danger" id="clear">Register löschen</button></section></main><footer>Daten werden auf diesem Gerät gespeichert.</footer><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#234d20">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<title>BallenManager Team</title>
+</head>
+<body>
+<header><h1>🌾 BallenManager</h1><p>Team · Verkauf · Bestand · Preisrechner</p></header>
+<main>
+<section id="authCard" class="card">
+<h2>Anmelden</h2>
+<p class="muted">Melde dich mit deinem Team-Konto an.</p>
+<label>E-Mail</label><input id="email" type="email" autocomplete="email">
+<label>Passwort</label><input id="password" type="password" autocomplete="current-password">
+<button id="login">Anmelden</button>
+<button class="secondary" id="signup">Konto erstmalig anlegen</button>
+<p id="authMsg" class="muted"></p>
+</section>
+
+<div id="app" hidden>
+<section class="card teambar"><div><b id="userEmail"></b><small id="role"></small></div><button class="secondary compact" id="logout">Abmelden</button></section>
+
+<section class="card">
+<h2>Preis berechnen</h2>
+<label>Kunde</label><input id="customer" placeholder="optional">
+<label>Produkt</label><select id="product"><option>Stroh</option><option>Heu</option></select>
+<label>Anzahl Ballen</label><input id="qty" type="number" min="1" value="1">
+<label>Stückpreis (€)</label><input id="unit" type="number" min="0" step="0.01" value="0">
+<label>Entfernung einfach (km)</label><input id="km" type="number" min="0" step="0.1" value="0">
+<label>Kilometerpreis (€ / km)</label><input id="kmprice" type="number" min="0" step="0.01" value="0">
+<label><input id="roundtrip" type="checkbox" checked> Hin- und Rückfahrt berechnen</label>
+<div class="result"><span>Gesamtpreis</span><strong id="total">0,00 €</strong></div>
+<button id="save">Verkauf speichern</button>
+</section>
+
+<section class="card">
+<h2>Bestand</h2>
+<div id="inventory"></div>
+</section>
+
+<section class="card">
+<h2>Verkaufsregister</h2>
+<div class="stats"><div><b id="sold">0</b><small>Ballen verkauft</small></div><div><b id="revenue">0,00 €</b><small>Umsatz</small></div></div>
+<div id="sales"></div>
+<button class="secondary" id="export">CSV exportieren</button>
+</section>
+</div>
+</main>
+<footer>Gemeinsame Team-Datenbank · BallenManager</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+</body></html>
