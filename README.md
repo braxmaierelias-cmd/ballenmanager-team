@@ -1,12 +1,10 @@
-# BallenManager Team – Version 3
+# BallenManager V4
 
-Neue Struktur:
-- Start-Dashboard
-- Verkauf als Hauptbereich mit Untermenü **Ballen**
-- Kundenverwaltung
-- Aufträge & Reservierungen mit Status
-- Zahlungsstatus
-- Bestand: Gesamt / reserviert / frei
-- automatische Bestandsbuchung bei Lieferung/Abholung/Abschluss
+Verkaufskategorien:
+- Ballen (Stück)
+- Forstfräsen (Kilometer oder Quadratmeter)
+- Erdmulde (Kilometer oder Quadratmeter)
+- Mulchen / Auslegemulchen / Seitenmulcher (Kilometer oder Quadratmeter)
+- Bankettfräse (Kilometer oder Quadratmeter)
 
-Die Daten werden gemeinsam über Supabase synchronisiert.
+Alle Leistungen können als Auftrag/Reservierung mit Kunde, Status, Termin, Fahrtkosten und Zahlungsstatus gespeichert werden.
