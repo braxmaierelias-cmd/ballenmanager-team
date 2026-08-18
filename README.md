@@ -1,6 +1,10 @@
-# BallenManager V4.4 – Login ohne CDN-Bibliothek
+# BallenManager Team v5
 
-Diese Version verwendet für Anmeldung und Datenbankzugriffe direkt die Supabase REST-APIs.
-Damit ist keine externe supabase-js Bibliothek mehr nötig.
-
-Bestehende Funktionen und Verkaufskategorien bleiben erhalten.
+Enthält:
+- Kunden: Name zuerst, Firma darunter, Profile bearbeitbar
+- Dienstleistungen: Kilometer, Quadratmeter, Stunden, Hektar
+- Übersicht: offene / in Bearbeitung / abgeschlossene Aufträge
+- Ballenübersicht direkt darunter
+- Bearbeitbare Gewinnübersicht mit Einnahmen und Abzügen
+- Kalender mit Aufträgen
+- Teamübersicht mit aktiven und abgeschlossenen Aufträgen pro Mitarbeiter

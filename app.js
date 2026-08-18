@@ -2,124 +2,73 @@ const SUPA_URL="https://hejaptzggbyqjjzireev.supabase.co";
 const APIKEY="sb_publishable_FVs1qFyjyqHnr8m_4YvEaw_uZqModyE";
 const $=id=>document.getElementById(id);
 const money=n=>(+n||0).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
-const L={reserviert:'Reserviert',bestaetigt:'Bestätigt',bereit:'Bereit',lieferung_geplant:'Lieferung geplant',geliefert:'Geliefert',abgeholt:'Abgeholt',abgeschlossen:'Abgeschlossen',storniert:'Storniert'};
+const L={reserviert:'Offen / Reserviert',bestaetigt:'Bestätigt',bereit:'In Bearbeitung',lieferung_geplant:'Lieferung geplant',geliefert:'Geliefert',abgeholt:'Abgeholt',abgeschlossen:'Abgeschlossen',storniert:'Storniert'};
 const reserve=new Set(['reserviert','bestaetigt','bereit','lieferung_geplant']);
-let token=null,refreshToken=null,me=null,inv=[],cust=[],orders=[],cat='Ballen';
-
-function saveSession(s){token=s.access_token||null;refreshToken=s.refresh_token||null;me=s.user||null;
- if(token) localStorage.setItem('bm_session',JSON.stringify({access_token:token,refresh_token:refreshToken,user:me}));
-}
+const workStates=new Set(['bestaetigt','bereit','lieferung_geplant','geliefert','abgeholt']);
+let token=null,refreshToken=null,me=null,inv=[],cust=[],orders=[],profiles=[],finance=[],cat='Ballen';
+let calDate=new Date();
+function saveSession(s){token=s.access_token||null;refreshToken=s.refresh_token||null;me=s.user||null;if(token)localStorage.setItem('bm_session',JSON.stringify({access_token:token,refresh_token:refreshToken,user:me}));}
 function clearSession(){token=refreshToken=null;me=null;localStorage.removeItem('bm_session');}
 function authHeaders(){return {'apikey':APIKEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'};}
-async function login(email,password){
- const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':APIKEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
- const j=await r.json().catch(()=>({}));
- if(!r.ok) throw new Error(j.error_description||j.msg||j.message||('Login fehlgeschlagen ('+r.status+')'));
- saveSession(j);return j;
-}
-async function refresh(){
- if(!refreshToken) return false;
- const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{'apikey':APIKEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:refreshToken})});
- const j=await r.json().catch(()=>({})); if(!r.ok) return false; saveSession(j); return true;
-}
-async function req(path,opts={},retry=true){
- let r=await fetch(SUPA_URL+'/rest/v1/'+path,{...opts,headers:{...authHeaders(),...(opts.headers||{})}});
- if(r.status===401 && retry && await refresh()) return req(path,opts,false);
- if(!r.ok){const t=await r.text();throw new Error(t||('Datenbankfehler '+r.status));}
- const text=await r.text();return text?JSON.parse(text):null;
-}
-const q=s=>encodeURIComponent(s);
-async function select(table,query=''){return await req(table+(query?'?'+query:''),{headers:{Prefer:'count=exact'}});}
-async function insert(table,obj,returning=true){return await req(table,{method:'POST',headers:{Prefer:returning?'return=representation':'return=minimal'},body:JSON.stringify(obj)});}
-async function update(table,obj,filter){return await req(table+'?'+filter,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify(obj)});}
-async function remove(table,filter){return await req(table+'?'+filter,{method:'DELETE',headers:{Prefer:'return=minimal'}});}
-
-function page(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$('p-'+p).classList.add('active');document.querySelector(`nav button[data-page="${p}"]`)?.classList.add('active');}
+async function login(email,password){const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:APIKEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error_description||j.msg||j.message||('Login fehlgeschlagen ('+r.status+')'));saveSession(j);return j;}
+async function refresh(){if(!refreshToken)return false;const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:APIKEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:refreshToken})});const j=await r.json().catch(()=>({}));if(!r.ok)return false;saveSession(j);return true;}
+async function req(path,opts={},retry=true){let r=await fetch(SUPA_URL+'/rest/v1/'+path,{...opts,headers:{...authHeaders(),...(opts.headers||{})}});if(r.status===401&&retry&&await refresh())return req(path,opts,false);if(!r.ok){const t=await r.text();throw new Error(t||('Datenbankfehler '+r.status));}const text=await r.text();return text?JSON.parse(text):null;}
+async function select(table,query=''){return await req(table+(query?'?'+query:''),{headers:{Prefer:'count=exact'}})}
+async function insert(table,obj,returning=true){return await req(table,{method:'POST',headers:{Prefer:returning?'return=representation':'return=minimal'},body:JSON.stringify(obj)})}
+async function update(table,obj,filter){return await req(table+'?'+filter,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify(obj)})}
+async function remove(table,filter){return await req(table+'?'+filter,{method:'DELETE',headers:{Prefer:'return=minimal'}})}
+function esc(s=''){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function page(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$('p-'+p).classList.add('active');document.querySelector(`nav button[data-page="${p}"]`)?.classList.add('active');if(p==='kalender')renderCalendar();}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>page(b.dataset.page));
-
-async function session(){
- if(!token){$('auth').hidden=false;$('app').hidden=true;return}
- $('auth').hidden=true;$('app').hidden=false;$('who').textContent=me?.email||'';
- try{
-   const p=await select('profiles','select=role&id=eq.'+encodeURIComponent(me.id));
-   $('role').textContent=p?.[0]?.role==='admin'?'Administrator':'Teammitglied';
-   await load();
- }catch(e){
-   if(String(e.message).includes('JWT')||String(e.message).includes('401')){clearSession();$('auth').hidden=false;$('app').hidden=true;}
-   else console.error(e);
- }
-}
-$('login').onclick=async()=>{
- try{
-   $('authmsg').textContent='Anmeldung läuft …';
-   await login($('email').value.trim(),$('password').value);
-   $('authmsg').textContent='';
-   await session();
- }catch(e){$('authmsg').textContent=e.message;}
-};
-$('logout').onclick=async()=>{clearSession();$('auth').hidden=false;$('app').hidden=true;};
-
-async function load(){
- [inv,cust,orders]=await Promise.all([
-   select('inventory','select=*&order=product.asc'),
-   select('customers','select=*&order=name.asc'),
-   select('orders','select=*,customers(id,name,company),order_items(*)&order=created_at.desc')
- ]);
- render();
-}
-function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+async function session(){if(!token){$('auth').hidden=false;$('app').hidden=true;return}$('auth').hidden=true;$('app').hidden=false;$('who').textContent=me?.email||'';try{const p=await select('profiles','select=role,display_name,email&id=eq.'+encodeURIComponent(me.id));$('role').textContent=p?.[0]?.role==='admin'?'Administrator':'Teammitglied';if(p?.[0]?.display_name)$('who').textContent=p[0].display_name;await load();}catch(e){if(String(e.message).includes('JWT')||String(e.message).includes('401')){clearSession();$('auth').hidden=false;$('app').hidden=true}else console.error(e)}}
+$('login').onclick=async()=>{try{$('authmsg').textContent='Anmeldung läuft …';await login($('email').value.trim(),$('password').value);$('authmsg').textContent='';await session()}catch(e){$('authmsg').textContent=e.message}};
+$('logout').onclick=()=>{clearSession();$('auth').hidden=false;$('app').hidden=true};
+async function load(){[inv,cust,orders,profiles,finance]=await Promise.all([select('inventory','select=*&order=product.asc'),select('customers','select=*&order=name.asc'),select('orders','select=*,customers(id,name,company),order_items(*)&order=created_at.desc'),select('profiles','select=id,email,display_name,role&order=display_name.asc'),select('financial_entries','select=*&order=entry_date.desc,created_at.desc')]);render();}
 function itemAmount(i){return +(i.amount??i.quantity??0)}
 function orderVal(o){return (o.order_items||[]).reduce((a,i)=>a+itemAmount(i)*(+i.unit_price||0),0)+(+o.kilometers||0)*(+o.kilometer_price||0)}
 function resProd(p){return orders.filter(o=>reserve.has(o.status)&&o.order_type==='Ballen').flatMap(o=>o.order_items||[]).filter(i=>i.product===p).reduce((a,i)=>a+itemAmount(i),0)}
+function profileName(id){const p=profiles.find(x=>x.id===id);return p?.display_name||p?.email||'—'}
 function render(){
- $('custSel').innerHTML='<option value="">Kunde wählen …</option>'+cust.map(c=>`<option value="${c.id}">${esc(c.company||c.name)}</option>`).join('');
- $('kOpen').textContent=orders.filter(o=>!['abgeschlossen','storniert'].includes(o.status)).length;
- $('kRes').textContent=inv.reduce((a,i)=>a+resProd(i.product),0);
- $('kDel').textContent=orders.filter(o=>o.status==='lieferung_geplant').length;
- $('kPay').textContent=orders.filter(o=>o.payment_status!=='bezahlt'&&o.status!=='storniert').length;
- $('recent').innerHTML=orders.slice(0,5).map(card).join('')||'<p class="muted">Noch keine Aufträge.</p>';
- renderCustomers();renderOrders();renderInv();syncPrice();calc();
+ $('custSel').innerHTML='<option value="">Kunde wählen …</option>'+cust.map(c=>`<option value="${c.id}">${esc(c.name)}${c.company?' · '+esc(c.company):''}</option>`).join('');
+ $('assignedTo').innerHTML='<option value="">Noch nicht zugeordnet</option>'+profiles.map(p=>`<option value="${p.id}">${esc(p.display_name||p.email)}</option>`).join('');
+ $('kOpen').textContent=orders.filter(o=>o.status==='reserviert').length;
+ $('kWork').textContent=orders.filter(o=>workStates.has(o.status)).length;
+ $('kDone').textContent=orders.filter(o=>o.status==='abgeschlossen').length;
+ renderDashInventory();renderFinance();renderCustomers();renderOrders();renderInv();renderTeam();renderCalendar();syncPrice();calc();
 }
-document.querySelectorAll('.cat').forEach(b=>b.onclick=()=>{
- document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));b.classList.add('active');cat=b.dataset.cat;$('formTitle').textContent=cat;
- $('productWrap').hidden=cat!=='Ballen';$('mulchWrap').hidden=cat!=='Mulchen';
- if(cat==='Ballen'){$('unit').innerHTML='<option value="stueck">Stück</option>';$('amountLabel').textContent='Anzahl Ballen';$('priceLabel').textContent='Preis pro Stück (€)';}
- else{$('unit').innerHTML='<option value="km">Kilometer</option><option value="m2">Quadratmeter</option>';$('amountLabel').textContent='Menge';$('priceLabel').textContent='Preis pro Einheit (€)';}
- syncPrice();calc();
-});
-$('unit').onchange=()=>{const u=$('unit').value;$('amountLabel').textContent=u==='km'?'Arbeitsstrecke (km)':u==='m2'?'Fläche (m²)':'Anzahl Ballen';$('priceLabel').textContent=u==='km'?'Preis pro km (€)':u==='m2'?'Preis pro m² (€)':'Preis pro Stück (€)';calc();};
+function unitOptions(){return '<option value="km">Kilometer</option><option value="m2">Quadratmeter</option><option value="stunden">Stunden</option><option value="ha">Hektar</option>'}
+document.querySelectorAll('.cat').forEach(b=>b.onclick=()=>{document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));b.classList.add('active');cat=b.dataset.cat;$('formTitle').textContent=cat;$('productWrap').hidden=cat!=='Ballen';$('mulchWrap').hidden=cat!=='Mulchen';$('unit').innerHTML=cat==='Ballen'?'<option value="stueck">Stück</option>':unitOptions();syncLabels();syncPrice();calc();});
+function syncLabels(){const u=$('unit').value;const map={km:['Arbeitsstrecke (km)','Preis pro km (€)'],m2:['Fläche (m²)','Preis pro m² (€)'],stunden:['Stunden','Preis pro Stunde (€)'],ha:['Hektar','Preis pro Hektar (€)'],stueck:['Anzahl Ballen','Preis pro Stück (€)']};const x=map[u]||map.stueck;$('amountLabel').textContent=x[0];$('priceLabel').textContent=x[1];}
+$('unit').onchange=()=>{syncLabels();calc()};
 function syncPrice(){if(cat==='Ballen'){const i=inv.find(x=>x.product===$('product').value);$('unitPrice').value=i?.default_unit_price||0}}
-$('product').onchange=()=>{syncPrice();calc();};
+$('product').onchange=()=>{syncPrice();calc()};
 ['amount','unitPrice','travelKm','travelPrice','roundtrip'].forEach(x=>$(x).addEventListener('input',calc));
 function calc(){const a=+$('amount').value||0,p=+$('unitPrice').value||0,k=+$('travelKm').value||0,kp=+$('travelPrice').value||0;const billed=k*($('roundtrip').checked?2:1);$('total').textContent=money(a*p+billed*kp);return billed;}
-$('saveOrder').onclick=async()=>{
- try{
- const customer_id=+$('custSel').value||null;if(!customer_id)return alert('Bitte Kunde auswählen.');
- const amount=+$('amount').value||0;if(amount<=0)return alert('Bitte Menge eingeben.');
- const u=$('unit').value;let product=cat==='Ballen'?$('product').value:cat==='Mulchen'?$('mulchType').value:cat;
- if(cat==='Ballen'&&reserve.has($('status').value)){const free=(inv.find(i=>i.product===product)?.quantity||0)-resProd(product);if(amount>free&&!confirm(`Nur ${Math.max(0,free)} Ballen frei. Trotzdem anlegen?`))return;}
- const km=calc();
- const rows=await insert('orders',{customer_id,order_type:cat,status:$('status').value,payment_status:'offen',delivery_type:$('delivery').value,delivery_date:$('date').value||null,kilometers:km,kilometer_price:+$('travelPrice').value||0,notes:$('notes').value.trim()||null,created_by:me.id},true);
- const o=rows[0]; const qtyLegacy=u==='stueck'?Math.round(amount):1;
- try{await insert('order_items',{order_id:o.id,product,quantity:qtyLegacy,amount,unit:u,unit_price:+$('unitPrice').value||0,description:cat},false);}
- catch(e){await remove('orders','id=eq.'+o.id);throw e;}
- $('notes').value='';$('amount').value=1;await load();page('auftraege');
- }catch(e){alert(e.message);}
-};
-$('addCustomer').onclick=async()=>{
- try{const name=$('cn').value.trim();if(!name)return alert('Name fehlt.');
- await insert('customers',{name,company:$('cc').value.trim()||null,phone:$('cp').value.trim()||null,email:$('ce').value.trim()||null,address:$('ca').value.trim()||null,notes:$('cno').value.trim()||null,created_by:me.id},false);
- ['cn','cc','cp','ce','ca','cno'].forEach(x=>$(x).value='');await load();}catch(e){alert(e.message);}
-};
+$('saveOrder').onclick=async()=>{try{const customer_id=+$('custSel').value||null;if(!customer_id)return alert('Bitte Kunde auswählen.');const amount=+$('amount').value||0;if(amount<=0)return alert('Bitte Menge eingeben.');const u=$('unit').value;let product=cat==='Ballen'?$('product').value:cat==='Mulchen'?$('mulchType').value:cat;if(cat==='Ballen'&&reserve.has($('status').value)){const free=(inv.find(i=>i.product===product)?.quantity||0)-resProd(product);if(amount>free&&!confirm(`Nur ${Math.max(0,free)} Ballen frei. Trotzdem anlegen?`))return;}const km=calc();const status=$('status').value;const assigned=$('assignedTo').value||null;const rows=await insert('orders',{customer_id,order_type:cat,status,payment_status:'offen',delivery_type:$('delivery').value,delivery_date:$('date').value||null,kilometers:km,kilometer_price:+$('travelPrice').value||0,notes:$('notes').value.trim()||null,created_by:me.id,assigned_to:assigned,completed_by:status==='abgeschlossen'?me.id:null,completed_at:status==='abgeschlossen'?new Date().toISOString():null},true);const o=rows[0];const qtyLegacy=u==='stueck'?Math.round(amount):1;try{await insert('order_items',{order_id:o.id,product,quantity:qtyLegacy,amount,unit:u,unit_price:+$('unitPrice').value||0,description:cat},false)}catch(e){await remove('orders','id=eq.'+o.id);throw e}$('notes').value='';$('amount').value=1;await load();page('auftraege')}catch(e){alert(e.message)}};
+function resetCustomerForm(){['cn','cc','cp','ce','ca','cno','customerEditId'].forEach(x=>$(x).value='');$('customerFormTitle').textContent='Kunde anlegen';$('addCustomer').textContent='Kunde speichern';$('cancelCustomerEdit').hidden=true}
+$('addCustomer').onclick=async()=>{try{const name=$('cn').value.trim();if(!name)return alert('Name fehlt.');const obj={name,company:$('cc').value.trim()||null,phone:$('cp').value.trim()||null,email:$('ce').value.trim()||null,address:$('ca').value.trim()||null,notes:$('cno').value.trim()||null};const id=+$('customerEditId').value||0;if(id)await update('customers',obj,'id=eq.'+id);else await insert('customers',{...obj,created_by:me.id},false);resetCustomerForm();await load()}catch(e){alert(e.message)}};
+$('cancelCustomerEdit').onclick=resetCustomerForm;
 $('custSearch').oninput=renderCustomers;
-function renderCustomers(){const qv=($('custSearch').value||'').toLowerCase();$('customers').innerHTML=cust.filter(c=>[c.name,c.company,c.phone,c.email].join(' ').toLowerCase().includes(qv)).map(c=>`<div class="customer"><h4>${esc(c.company||c.name)}</h4><p>${c.company?esc(c.name)+' · ':''}${esc(c.phone||'')}${c.email?' · '+esc(c.email):''}</p></div>`).join('')||'<p class="muted">Keine Kunden.</p>';}
+function editCustomer(id){const c=cust.find(x=>x.id===id);if(!c)return;$('customerEditId').value=c.id;$('cn').value=c.name||'';$('cc').value=c.company||'';$('cp').value=c.phone||'';$('ce').value=c.email||'';$('ca').value=c.address||'';$('cno').value=c.notes||'';$('customerFormTitle').textContent='Kunde bearbeiten';$('addCustomer').textContent='Änderungen speichern';$('cancelCustomerEdit').hidden=false;page('kunden');window.scrollTo({top:0,behavior:'smooth'});}
+function renderCustomers(){const qv=($('custSearch').value||'').toLowerCase();$('customers').innerHTML=cust.filter(c=>[c.name,c.company,c.phone,c.email].join(' ').toLowerCase().includes(qv)).map(c=>`<div class="customer"><div class="customerline"><div><h4>${esc(c.name)}</h4>${c.company?`<div class="company">${esc(c.company)}</div>`:''}<p>${esc(c.phone||'')}${c.email?' · '+esc(c.email):''}</p></div><button class="secondary compact" data-edit-c="${c.id}">Bearbeiten</button></div></div>`).join('')||'<p class="muted">Keine Kunden.</p>';document.querySelectorAll('[data-edit-c]').forEach(b=>b.onclick=()=>editCustomer(+b.dataset.editC));}
 $('fstatus').onchange=renderOrders;$('osearch').oninput=renderOrders;
-function card(o){const i=(o.order_items||[])[0]||{},unit=i.unit==='m2'?'m²':i.unit==='km'?'km':'Stk.';return `<div class="order"><div class="topline"><div><h4>#${o.id} · ${esc(o.customers?.company||o.customers?.name||'Kunde')}</h4><p>${esc(o.order_type)} · ${itemAmount(i)} ${unit} · ${esc(i.product||'')} · ${money(orderVal(o))}</p></div><span class="badge ${o.status}">${L[o.status]||o.status}</span></div><p>Zahlung: <b>${o.payment_status==='bezahlt'?'Bezahlt':o.payment_status==='teilbezahlt'?'Teilbezahlt':'Offen'}</b></p><div class="actions"><select data-s="${o.id}">${Object.entries(L).map(([k,v])=>`<option value="${k}" ${o.status===k?'selected':''}>${v}</option>`).join('')}</select><select data-p="${o.id}"><option value="offen" ${o.payment_status==='offen'?'selected':''}>Offen</option><option value="teilbezahlt" ${o.payment_status==='teilbezahlt'?'selected':''}>Teilbezahlt</option><option value="bezahlt" ${o.payment_status==='bezahlt'?'selected':''}>Bezahlt</option></select></div></div>`;}
-function renderOrders(){const f=$('fstatus').value,qv=($('osearch').value||'').toLowerCase();$('orders').innerHTML=orders.filter(o=>(!f||o.status===f)&&[o.order_type,o.customers?.name,o.customers?.company].join(' ').toLowerCase().includes(qv)).map(card).join('')||'<p class="muted">Keine Aufträge.</p>';document.querySelectorAll('[data-s]').forEach(x=>x.onchange=changeS);document.querySelectorAll('[data-p]').forEach(x=>x.onchange=changeP);}
-async function changeP(e){try{await update('orders',{payment_status:e.target.value,updated_at:new Date().toISOString()},'id=eq.'+(+e.target.dataset.p));await load();}catch(x){alert(x.message)}}
-async function changeS(e){try{const id=+e.target.dataset.s,o=orders.find(x=>x.id===id),ns=e.target.value;if(o?.order_type==='Ballen'&&['geliefert','abgeholt','abgeschlossen'].includes(ns)&&!o.stock_committed){for(const it of o.order_items||[]){const ii=inv.find(x=>x.product===it.product);if(ii)await update('inventory',{quantity:Math.max(0,+ii.quantity-itemAmount(it)),updated_at:new Date().toISOString(),updated_by:me.id},'id=eq.'+ii.id)}await update('orders',{status:ns,stock_committed:true,updated_at:new Date().toISOString()},'id=eq.'+id)}else{await update('orders',{status:ns,updated_at:new Date().toISOString()},'id=eq.'+id)}await load();}catch(x){alert(x.message)}}
-function renderInv(){$('inventory').innerHTML=inv.map(i=>{const r=resProd(i.product),free=Math.max(0,+i.quantity-r);return `<div class="stock"><div><b>${i.product}</b><div class="invedit"><label>Gesamt<input data-q="${i.id}" value="${i.quantity}" type="number" min="0"></label><label>Stückpreis<input data-pr="${i.id}" value="${i.default_unit_price}" type="number" min="0" step=".01"></label></div></div><div class="metric"><b>${i.quantity}</b><small>Gesamt</small></div><div class="metric"><b>${r}</b><small>Reserviert</small></div><div class="metric"><b>${free}</b><small>Frei</small></div></div>`}).join('');document.querySelectorAll('[data-q],[data-pr]').forEach(x=>x.onchange=saveInv);}
-async function saveInv(e){try{const id=+(e.target.dataset.q||e.target.dataset.pr),qq=document.querySelector(`[data-q="${id}"]`),p=document.querySelector(`[data-pr="${id}"]`);await update('inventory',{quantity:+qq.value||0,default_unit_price:+p.value||0,updated_at:new Date().toISOString(),updated_by:me.id},'id=eq.'+id);await load();}catch(x){alert(x.message)}}
-
-try{const saved=JSON.parse(localStorage.getItem('bm_session')||'null');if(saved)saveSession(saved);}catch(e){}
+function unitLabel(u){return u==='m2'?'m²':u==='km'?'km':u==='stunden'?'Std.':u==='ha'?'ha':'Stk.'}
+function card(o){const i=(o.order_items||[])[0]||{};return `<div class="order"><div class="topline"><div><h4>#${o.id} · ${esc(o.customers?.name||'Kunde')}</h4>${o.customers?.company?`<div class="company">${esc(o.customers.company)}</div>`:''}<p>${esc(o.order_type)} · ${itemAmount(i)} ${unitLabel(i.unit)} · ${esc(i.product||'')} · ${money(orderVal(o))}</p><p>Zuständig: <b>${esc(profileName(o.assigned_to))}</b>${o.completed_by?` · Abgeschlossen von: <b>${esc(profileName(o.completed_by))}</b>`:''}</p></div><span class="badge ${o.status}">${L[o.status]||o.status}</span></div><p>Zahlung: <b>${o.payment_status==='bezahlt'?'Bezahlt':o.payment_status==='teilbezahlt'?'Teilbezahlt':'Offen'}</b>${o.delivery_date?' · Termin: '+new Date(o.delivery_date+'T12:00:00').toLocaleDateString('de-DE'):''}</p><div class="actions"><select data-s="${o.id}">${Object.entries(L).map(([k,v])=>`<option value="${k}" ${o.status===k?'selected':''}>${v}</option>`).join('')}</select><select data-a="${o.id}"><option value="">Nicht zugeordnet</option>${profiles.map(p=>`<option value="${p.id}" ${o.assigned_to===p.id?'selected':''}>${esc(p.display_name||p.email)}</option>`).join('')}</select><select data-p="${o.id}"><option value="offen" ${o.payment_status==='offen'?'selected':''}>Offen</option><option value="teilbezahlt" ${o.payment_status==='teilbezahlt'?'selected':''}>Teilbezahlt</option><option value="bezahlt" ${o.payment_status==='bezahlt'?'selected':''}>Bezahlt</option></select></div></div>`;}
+function renderOrders(){const f=$('fstatus').value,qv=($('osearch').value||'').toLowerCase();$('orders').innerHTML=orders.filter(o=>(!f||o.status===f)&&[o.order_type,o.customers?.name,o.customers?.company].join(' ').toLowerCase().includes(qv)).map(card).join('')||'<p class="muted">Keine Aufträge.</p>';document.querySelectorAll('[data-s]').forEach(x=>x.onchange=changeS);document.querySelectorAll('[data-p]').forEach(x=>x.onchange=changeP);document.querySelectorAll('[data-a]').forEach(x=>x.onchange=changeA);}
+async function changeP(e){try{await update('orders',{payment_status:e.target.value,updated_at:new Date().toISOString()},'id=eq.'+(+e.target.dataset.p));await load()}catch(x){alert(x.message)}}
+async function changeA(e){try{await update('orders',{assigned_to:e.target.value||null,updated_at:new Date().toISOString()},'id=eq.'+(+e.target.dataset.a));await load()}catch(x){alert(x.message)}}
+async function changeS(e){try{const id=+e.target.dataset.s,o=orders.find(x=>x.id===id),ns=e.target.value;const payload={status:ns,updated_at:new Date().toISOString()};if(ns==='abgeschlossen'&&o?.status!=='abgeschlossen'){payload.completed_by=me.id;payload.completed_at=new Date().toISOString();if(!o.assigned_to)payload.assigned_to=me.id;}if(ns!=='abgeschlossen'&&o?.status==='abgeschlossen'){payload.completed_by=null;payload.completed_at=null;}if(o?.order_type==='Ballen'&&['geliefert','abgeholt','abgeschlossen'].includes(ns)&&!o.stock_committed){for(const it of o.order_items||[]){const ii=inv.find(x=>x.product===it.product);if(ii)await update('inventory',{quantity:Math.max(0,+ii.quantity-itemAmount(it)),updated_at:new Date().toISOString(),updated_by:me.id},'id=eq.'+ii.id)}payload.stock_committed=true;}await update('orders',payload,'id=eq.'+id);await load()}catch(x){alert(x.message)}}
+function renderInv(){$('inventory').innerHTML=inv.map(i=>{const r=resProd(i.product),free=Math.max(0,+i.quantity-r);return `<div class="stock"><div><b>${esc(i.product)}</b><div class="invedit"><label>Gesamt<input data-q="${i.id}" value="${i.quantity}" type="number" min="0"></label><label>Stückpreis<input data-pr="${i.id}" value="${i.default_unit_price}" type="number" min="0" step=".01"></label></div></div><div class="metric"><b>${i.quantity}</b><small>Gesamt</small></div><div class="metric"><b>${r}</b><small>Reserviert</small></div><div class="metric"><b>${free}</b><small>Frei</small></div></div>`}).join('');document.querySelectorAll('[data-q],[data-pr]').forEach(x=>x.onchange=saveInv)}
+function renderDashInventory(){$('dashInventory').innerHTML=inv.map(i=>{const r=resProd(i.product),free=Math.max(0,+i.quantity-r);return `<div class="dashstock"><b>${esc(i.product)}</b><span>Gesamt <strong>${i.quantity}</strong></span><span>Reserviert <strong>${r}</strong></span><span>Frei <strong>${free}</strong></span></div>`}).join('')||'<p class="muted">Kein Bestand.</p>'}
+async function saveInv(e){try{const id=+(e.target.dataset.q||e.target.dataset.pr),qq=document.querySelector(`[data-q="${id}"]`),p=document.querySelector(`[data-pr="${id}"]`);await update('inventory',{quantity:+qq.value||0,default_unit_price:+p.value||0,updated_at:new Date().toISOString(),updated_by:me.id},'id=eq.'+id);await load()}catch(x){alert(x.message)}}
+function resetFinance(){['financeId','finTitle','finCategory','finNotes'].forEach(x=>$(x).value='');$('finRevenue').value=0;$('finDeductions').value=0;$('finDate').value=new Date().toISOString().slice(0,10);$('financeForm').hidden=true}
+$('newFinance').onclick=()=>{$('financeForm').hidden=false;$('finDate').value=new Date().toISOString().slice(0,10);$('financeId').value='';};$('cancelFinance').onclick=resetFinance;
+$('saveFinance').onclick=async()=>{try{const title=$('finTitle').value.trim();if(!title)return alert('Bitte Bezeichnung eingeben.');const obj={entry_date:$('finDate').value||new Date().toISOString().slice(0,10),title,category:$('finCategory').value.trim()||null,revenue:+$('finRevenue').value||0,deductions:+$('finDeductions').value||0,notes:$('finNotes').value.trim()||null,updated_at:new Date().toISOString()};const id=+$('financeId').value||0;if(id)await update('financial_entries',obj,'id=eq.'+id);else await insert('financial_entries',{...obj,created_by:me.id},false);resetFinance();await load()}catch(e){alert(e.message)}};
+function editFinance(id){const f=finance.find(x=>x.id===id);if(!f)return;$('financeId').value=f.id;$('finDate').value=f.entry_date||'';$('finTitle').value=f.title||'';$('finCategory').value=f.category||'';$('finRevenue').value=f.revenue||0;$('finDeductions').value=f.deductions||0;$('finNotes').value=f.notes||'';$('financeForm').hidden=false;}
+async function deleteFinance(id){if(!confirm('Eintrag wirklich löschen?'))return;try{await remove('financial_entries','id=eq.'+id);await load()}catch(e){alert(e.message)}}
+function renderFinance(){const total=finance.reduce((a,f)=>a+(+f.revenue||0)-(+f.deductions||0),0);$('financeTotal').textContent=money(total);$('financeRows').innerHTML=finance.map(f=>`<tr><td>${new Date(f.entry_date+'T12:00:00').toLocaleDateString('de-DE')}</td><td><b>${esc(f.title)}</b>${f.category?`<small>${esc(f.category)}</small>`:''}</td><td>${money(f.revenue)}</td><td>${money(f.deductions)}</td><td><b>${money((+f.revenue||0)-(+f.deductions||0))}</b></td><td><div class="mini-actions"><button class="secondary compact" data-fe="${f.id}">✎</button><button class="danger compact" data-fd="${f.id}">×</button></div></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Noch keine Einträge.</td></tr>';document.querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>editFinance(+b.dataset.fe));document.querySelectorAll('[data-fd]').forEach(b=>b.onclick=()=>deleteFinance(+b.dataset.fd));}
+function renderTeam(){$('teamStats').innerHTML=profiles.map(p=>{const assigned=orders.filter(o=>o.assigned_to===p.id&&!['abgeschlossen','storniert'].includes(o.status));const done=orders.filter(o=>o.completed_by===p.id&&o.status==='abgeschlossen');return `<div class="teamcard"><div class="teamtop"><div><h4>${esc(p.display_name||p.email)}</h4><p>${esc(p.email||'')}</p></div><div class="teamnums"><span><b>${assigned.length}</b><small>Aktiv</small></span><span><b>${done.length}</b><small>Erledigt</small></span></div></div>${done.length?`<details><summary>Abgeschlossene Aufträge anzeigen</summary>${done.map(o=>`<div class="teamorder">#${o.id} · ${esc(o.order_type)} · ${esc(o.customers?.name||'Kunde')}</div>`).join('')}</details>`:''}</div>`}).join('')||'<p class="muted">Keine Teamprofile gefunden.</p>'}
+function renderCalendar(){if(!$('calendarGrid'))return;const y=calDate.getFullYear(),m=calDate.getMonth();$('calTitle').textContent=calDate.toLocaleDateString('de-DE',{month:'long',year:'numeric'});const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const days=new Date(y,m+1,0).getDate();let cells='';for(let i=0;i<start;i++)cells+='<div class="calday empty"></div>';for(let d=1;d<=days;d++){const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const dayOrders=orders.filter(o=>o.delivery_date===iso);cells+=`<button class="calday" data-date="${iso}"><b>${d}</b>${dayOrders.slice(0,3).map(o=>`<span>${esc(o.order_type)} · ${esc(o.customers?.name||'Kunde')}</span>`).join('')}${dayOrders.length>3?`<small>+${dayOrders.length-3} weitere</small>`:''}</button>`;}$('calendarGrid').innerHTML=cells;document.querySelectorAll('.calday[data-date]').forEach(b=>b.onclick=()=>{const date=b.dataset.date;$('date').value=date;page('verkauf')});}
+$('calPrev').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1);renderCalendar()};$('calNext').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1);renderCalendar()};$('calendarNew').onclick=()=>{page('verkauf');$('date').focus()};
+try{const saved=JSON.parse(localStorage.getItem('bm_session')||'null');if(saved)saveSession(saved)}catch(e){}
 session();

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1f5b2b">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=5.0">
 <title>BallenManager Team</title>
 </head>
 <body>
@@ -18,43 +18,45 @@
 <button id="login">Anmelden</button>
 <p id="authmsg" class="muted"></p>
 </section>
-
 <div id="app" hidden>
 <section class="card userbar"><div><b id="who"></b><small id="role"></small></div><button id="logout" class="secondary compact">Abmelden</button></section>
-
 <nav>
-<button class="active" data-page="start">🏠<span>Start</span></button>
+<button class="active" data-page="start">🏠<span>Übersicht</span></button>
 <button data-page="verkauf">🛒<span>Verkauf</span></button>
 <button data-page="kunden">👥<span>Kunden</span></button>
 <button data-page="auftraege">📋<span>Aufträge</span></button>
+<button data-page="kalender">📅<span>Kalender</span></button>
+<button data-page="team">👤<span>Team</span></button>
 <button data-page="bestand">📦<span>Bestand</span></button>
 </nav>
-
 <section id="p-start" class="page active">
 <h2>Übersicht</h2>
-<div class="kpis"><div><small>Offene Aufträge</small><b id="kOpen">0</b></div><div><small>Reserviert</small><b id="kRes">0</b></div><div><small>Lieferungen</small><b id="kDel">0</b></div><div><small>Zahlung offen</small><b id="kPay">0</b></div></div>
-<div class="card"><h3>Letzte Aufträge</h3><div id="recent"></div></div>
+<div class="kpis kpis3"><div><small>Offene Aufträge</small><b id="kOpen">0</b></div><div><small>In Bearbeitung</small><b id="kWork">0</b></div><div><small>Abgeschlossen</small><b id="kDone">0</b></div></div>
+<div class="card"><h3>Ballenübersicht</h3><div id="dashInventory"></div></div>
+<div class="card">
+<div class="sectionhead"><div><h3>Gewinnübersicht</h3><p class="muted">Frei bearbeitbare Übersicht für Einnahmen und Abzüge.</p></div><button id="newFinance" class="compact">+ Eintrag</button></div>
+<div id="financeForm" class="financeform" hidden><input type="hidden" id="financeId"><div class="grid"><div><label>Datum</label><input id="finDate" type="date"></div><div><label>Bezeichnung</label><input id="finTitle"></div><div><label>Kategorie</label><input id="finCategory"></div><div><label>Einnahmen (€)</label><input id="finRevenue" type="number" step="0.01" value="0"></div><div><label>Abzüge / Kosten (€)</label><input id="finDeductions" type="number" step="0.01" value="0"></div><div class="full"><label>Notiz</label><input id="finNotes"></div></div><div class="rowbuttons"><button id="saveFinance">Speichern</button><button id="cancelFinance" class="secondary">Abbrechen</button></div></div>
+<div class="finance-total"><span>Gesamtgewinn</span><strong id="financeTotal">0,00 €</strong></div>
+<div class="tablewrap"><table><thead><tr><th>Datum</th><th>Bezeichnung</th><th>Einnahmen</th><th>Abzüge</th><th>Gewinn</th><th></th></tr></thead><tbody id="financeRows"></tbody></table></div>
+</div>
 </section>
-
 <section id="p-verkauf" class="page">
 <h2>Verkauf & Leistungen</h2>
 <div class="cats">
-<button data-cat="Ballen" class="cat active"><span>🌾</span><b>Ballen</b><small>Stückpreis</small></button>
-<button data-cat="Forstfräsen" class="cat"><span>🌲</span><b>Forstfräsen</b><small>km oder m²</small></button>
-<button data-cat="Erdmulde" class="cat"><span>🚜</span><b>Erdmulde</b><small>km oder m²</small></button>
-<button data-cat="Mulchen" class="cat"><span>🌿</span><b>Mulchen</b><small>km oder m²</small></button>
-<button data-cat="Bankettfräse" class="cat"><span>🛣️</span><b>Bankettfräse</b><small>km oder m²</small></button>
+<button data-cat="Ballen" class="cat active"><span>🌾</span><b>Ballen</b><small>Stück</small></button>
+<button data-cat="Forstfräsen" class="cat"><span>🌲</span><b>Forstfräsen</b><small>km · m² · h · ha</small></button>
+<button data-cat="Erdmulde" class="cat"><span>🚜</span><b>Erdmulde</b><small>km · m² · h · ha</small></button>
+<button data-cat="Mulchen" class="cat"><span>🌿</span><b>Mulchen</b><small>km · m² · h · ha</small></button>
+<button data-cat="Bankettfräse" class="cat"><span>🛣️</span><b>Bankettfräse</b><small>km · m² · h · ha</small></button>
 </div>
-
-<div class="card">
-<h3 id="formTitle">Ballen</h3>
-<div class="grid">
+<div class="card"><h3 id="formTitle">Ballen</h3><div class="grid">
 <div class="full"><label>Kunde</label><select id="custSel"></select></div>
+<div class="full"><label>Zuständiger Mitarbeiter</label><select id="assignedTo"></select></div>
 <div id="productWrap"><label>Produkt</label><select id="product"><option>Stroh</option><option>Heu</option></select></div>
 <div id="mulchWrap" hidden><label>Mulchart</label><select id="mulchType"><option>Mulchen</option><option>Auslegemulchen</option><option>Seitenmulcher</option></select></div>
-<div><label>Status</label><select id="status"><option value="reserviert">Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">Bereit</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option><option value="abgeschlossen">Abgeschlossen</option></select></div>
-<div id="unitWrap"><label>Berechnung</label><select id="unit"><option value="stueck">Stück</option></select></div>
-<div><label id="amountLabel">Anzahl</label><input id="amount" type="number" min="0" step="0.01" value="1"></div>
+<div><label>Status</label><select id="status"><option value="reserviert">Offen / Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">In Bearbeitung</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option><option value="abgeschlossen">Abgeschlossen</option></select></div>
+<div><label>Berechnung</label><select id="unit"><option value="stueck">Stück</option></select></div>
+<div><label id="amountLabel">Anzahl Ballen</label><input id="amount" type="number" min="0" step="0.01" value="1"></div>
 <div><label id="priceLabel">Preis pro Stück (€)</label><input id="unitPrice" type="number" min="0" step="0.01" value="0"></div>
 <div><label>Lieferart</label><select id="delivery"><option>Abholung</option><option>Lieferung</option><option>Vor Ort</option></select></div>
 <div><label>Termin</label><input id="date" type="date"></div>
@@ -62,30 +64,14 @@
 <div><label>Fahrt-Kilometerpreis (€)</label><input id="travelPrice" type="number" min="0" step="0.01" value="0"></div>
 <div class="full"><label><input id="roundtrip" type="checkbox" checked class="check"> Hin- und Rückfahrt berechnen</label></div>
 <div class="full"><label>Notiz</label><textarea id="notes"></textarea></div>
-</div>
-<div class="result"><span>Gesamtpreis</span><strong id="total">0,00 €</strong></div>
-<button id="saveOrder">Auftrag / Reservierung speichern</button>
-</div>
+</div><div class="result"><span>Gesamtpreis</span><strong id="total">0,00 €</strong></div><button id="saveOrder">Auftrag / Reservierung speichern</button></div>
 </section>
-
-<section id="p-kunden" class="page">
-<h2>Kunden</h2>
-<div class="card"><h3>Kunde anlegen</h3>
-<div class="grid"><div><label>Name *</label><input id="cn"></div><div><label>Firma</label><input id="cc"></div><div><label>Telefon</label><input id="cp"></div><div><label>E-Mail</label><input id="ce"></div><div class="full"><label>Adresse</label><input id="ca"></div><div class="full"><label>Notiz</label><textarea id="cno"></textarea></div></div>
-<button id="addCustomer">Kunde speichern</button></div>
-<div class="card"><input id="custSearch" placeholder="Kunden suchen …"><div id="customers"></div></div>
-</section>
-
-<section id="p-auftraege" class="page">
-<h2>Aufträge & Reservierungen</h2>
-<div class="card"><div class="filters"><select id="fstatus"><option value="">Alle Status</option><option value="reserviert">Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">Bereit</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option><option value="abgeschlossen">Abgeschlossen</option><option value="storniert">Storniert</option></select><input id="osearch" placeholder="Kunde / Kategorie suchen …"></div><div id="orders"></div></div>
-</section>
-
+<section id="p-kunden" class="page"><h2>Kunden</h2><div class="card"><h3 id="customerFormTitle">Kunde anlegen</h3><input id="customerEditId" type="hidden"><div class="grid"><div><label>Name *</label><input id="cn"></div><div><label>Firma</label><input id="cc"></div><div><label>Telefon</label><input id="cp"></div><div><label>E-Mail</label><input id="ce"></div><div class="full"><label>Adresse</label><input id="ca"></div><div class="full"><label>Notiz</label><textarea id="cno"></textarea></div></div><div class="rowbuttons"><button id="addCustomer">Kunde speichern</button><button id="cancelCustomerEdit" class="secondary" hidden>Abbrechen</button></div></div><div class="card"><input id="custSearch" placeholder="Kunden suchen …"><div id="customers"></div></div></section>
+<section id="p-auftraege" class="page"><h2>Aufträge & Reservierungen</h2><div class="card"><div class="filters"><select id="fstatus"><option value="">Alle Status</option><option value="reserviert">Offen / Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">In Bearbeitung</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option><option value="abgeschlossen">Abgeschlossen</option><option value="storniert">Storniert</option></select><input id="osearch" placeholder="Kunde / Kategorie suchen …"></div><div id="orders"></div></div></section>
+<section id="p-kalender" class="page"><div class="calendarhead"><h2>Kalender</h2><button id="calendarNew" class="compact">+ Auftrag</button></div><div class="card"><div class="calendar-nav"><button id="calPrev" class="secondary compact">‹</button><strong id="calTitle"></strong><button id="calNext" class="secondary compact">›</button></div><div class="calendar-week"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div><div id="calendarGrid" class="calendar-grid"></div></div></section>
+<section id="p-team" class="page"><h2>Team & Leistungen</h2><div class="card"><p class="muted">Abgeschlossene Aufträge werden dem Mitarbeiter gutgeschrieben, der den Auftrag auf „Abgeschlossen“ setzt.</p><div id="teamStats"></div></div></section>
 <section id="p-bestand" class="page"><h2>Bestand</h2><div class="card"><div id="inventory"></div></div></section>
-</div>
-</main>
+</div></main>
 <footer>Gemeinsame Team-Datenbank · BallenManager</footer>
-
-<script src="app.js?v=4.4"></script>
-</body>
-</html>
+<script src="app.js?v=5.0"></script>
+</body></html>
