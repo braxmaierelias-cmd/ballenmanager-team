@@ -1,10 +1,12 @@
-# BallenManager Team v5
+# FarmManager v6
 
-Enthält:
-- Kunden: Name zuerst, Firma darunter, Profile bearbeitbar
-- Dienstleistungen: Kilometer, Quadratmeter, Stunden, Hektar
-- Übersicht: offene / in Bearbeitung / abgeschlossene Aufträge
-- Ballenübersicht direkt darunter
-- Bearbeitbare Gewinnübersicht mit Einnahmen und Abzügen
-- Kalender mit Aufträgen
-- Teamübersicht mit aktiven und abgeschlossenen Aufträgen pro Mitarbeiter
+Änderungen:
+- App heißt jetzt FarmManager.
+- Benutzer-/Administratoranzeige klein oben rechts.
+- Kalender unabhängig von Aufträgen vollständig bearbeitbar.
+- Freie Kalendereinträge können angelegt, geändert und gelöscht werden.
+- Auftrags-Termine bleiben zusätzlich im Kalender sichtbar.
+- Mitarbeiter sind anklickbar.
+- Mitarbeiter-Unterprofile mit gemeinsamen Notizen und Terminen.
+- Jeder angemeldete Mitarbeiter kann Notizen und Termine sehen und bearbeiten.
+- Abgeschlossene Aufträge bleiben im Mitarbeiterprofil sichtbar.

@@ -5,8 +5,8 @@ const money=n=>(+n||0).toLocaleString('de-DE',{style:'currency',currency:'EUR'})
 const L={reserviert:'Offen / Reserviert',bestaetigt:'Bestätigt',bereit:'In Bearbeitung',lieferung_geplant:'Lieferung geplant',geliefert:'Geliefert',abgeholt:'Abgeholt',abgeschlossen:'Abgeschlossen',storniert:'Storniert'};
 const reserve=new Set(['reserviert','bestaetigt','bereit','lieferung_geplant']);
 const workStates=new Set(['bestaetigt','bereit','lieferung_geplant','geliefert','abgeholt']);
-let token=null,refreshToken=null,me=null,inv=[],cust=[],orders=[],profiles=[],finance=[],cat='Ballen';
-let calDate=new Date();
+let token=null,refreshToken=null,me=null,inv=[],cust=[],orders=[],profiles=[],finance=[],calendarEvents=[],teamNotes=[],teamAppointments=[],cat='Ballen';
+let calDate=new Date(), selectedTeamProfile=null;
 function saveSession(s){token=s.access_token||null;refreshToken=s.refresh_token||null;me=s.user||null;if(token)localStorage.setItem('bm_session',JSON.stringify({access_token:token,refresh_token:refreshToken,user:me}));}
 function clearSession(){token=refreshToken=null;me=null;localStorage.removeItem('bm_session');}
 function authHeaders(){return {'apikey':APIKEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'};}
@@ -23,7 +23,7 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>page(b.dataset.
 async function session(){if(!token){$('auth').hidden=false;$('app').hidden=true;return}$('auth').hidden=true;$('app').hidden=false;$('who').textContent=me?.email||'';try{const p=await select('profiles','select=role,display_name,email&id=eq.'+encodeURIComponent(me.id));$('role').textContent=p?.[0]?.role==='admin'?'Administrator':'Teammitglied';if(p?.[0]?.display_name)$('who').textContent=p[0].display_name;await load();}catch(e){if(String(e.message).includes('JWT')||String(e.message).includes('401')){clearSession();$('auth').hidden=false;$('app').hidden=true}else console.error(e)}}
 $('login').onclick=async()=>{try{$('authmsg').textContent='Anmeldung läuft …';await login($('email').value.trim(),$('password').value);$('authmsg').textContent='';await session()}catch(e){$('authmsg').textContent=e.message}};
 $('logout').onclick=()=>{clearSession();$('auth').hidden=false;$('app').hidden=true};
-async function load(){[inv,cust,orders,profiles,finance]=await Promise.all([select('inventory','select=*&order=product.asc'),select('customers','select=*&order=name.asc'),select('orders','select=*,customers(id,name,company),order_items(*)&order=created_at.desc'),select('profiles','select=id,email,display_name,role&order=display_name.asc'),select('financial_entries','select=*&order=entry_date.desc,created_at.desc')]);render();}
+async function load(){[inv,cust,orders,profiles,finance,calendarEvents,teamNotes,teamAppointments]=await Promise.all([select('inventory','select=*&order=product.asc'),select('customers','select=*&order=name.asc'),select('orders','select=*,customers(id,name,company),order_items(*)&order=created_at.desc'),select('profiles','select=id,email,display_name,role&order=display_name.asc'),select('financial_entries','select=*&order=entry_date.desc,created_at.desc'),select('calendar_events','select=*&order=event_date.asc,start_time.asc'),select('team_notes','select=*&order=created_at.desc'),select('team_appointments','select=*&order=appointment_date.asc,appointment_time.asc')]);render();}
 function itemAmount(i){return +(i.amount??i.quantity??0)}
 function orderVal(o){return (o.order_items||[]).reduce((a,i)=>a+itemAmount(i)*(+i.unit_price||0),0)+(+o.kilometers||0)*(+o.kilometer_price||0)}
 function resProd(p){return orders.filter(o=>reserve.has(o.status)&&o.order_type==='Ballen').flatMap(o=>o.order_items||[]).filter(i=>i.product===p).reduce((a,i)=>a+itemAmount(i),0)}
@@ -67,8 +67,122 @@ $('saveFinance').onclick=async()=>{try{const title=$('finTitle').value.trim();if
 function editFinance(id){const f=finance.find(x=>x.id===id);if(!f)return;$('financeId').value=f.id;$('finDate').value=f.entry_date||'';$('finTitle').value=f.title||'';$('finCategory').value=f.category||'';$('finRevenue').value=f.revenue||0;$('finDeductions').value=f.deductions||0;$('finNotes').value=f.notes||'';$('financeForm').hidden=false;}
 async function deleteFinance(id){if(!confirm('Eintrag wirklich löschen?'))return;try{await remove('financial_entries','id=eq.'+id);await load()}catch(e){alert(e.message)}}
 function renderFinance(){const total=finance.reduce((a,f)=>a+(+f.revenue||0)-(+f.deductions||0),0);$('financeTotal').textContent=money(total);$('financeRows').innerHTML=finance.map(f=>`<tr><td>${new Date(f.entry_date+'T12:00:00').toLocaleDateString('de-DE')}</td><td><b>${esc(f.title)}</b>${f.category?`<small>${esc(f.category)}</small>`:''}</td><td>${money(f.revenue)}</td><td>${money(f.deductions)}</td><td><b>${money((+f.revenue||0)-(+f.deductions||0))}</b></td><td><div class="mini-actions"><button class="secondary compact" data-fe="${f.id}">✎</button><button class="danger compact" data-fd="${f.id}">×</button></div></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Noch keine Einträge.</td></tr>';document.querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>editFinance(+b.dataset.fe));document.querySelectorAll('[data-fd]').forEach(b=>b.onclick=()=>deleteFinance(+b.dataset.fd));}
-function renderTeam(){$('teamStats').innerHTML=profiles.map(p=>{const assigned=orders.filter(o=>o.assigned_to===p.id&&!['abgeschlossen','storniert'].includes(o.status));const done=orders.filter(o=>o.completed_by===p.id&&o.status==='abgeschlossen');return `<div class="teamcard"><div class="teamtop"><div><h4>${esc(p.display_name||p.email)}</h4><p>${esc(p.email||'')}</p></div><div class="teamnums"><span><b>${assigned.length}</b><small>Aktiv</small></span><span><b>${done.length}</b><small>Erledigt</small></span></div></div>${done.length?`<details><summary>Abgeschlossene Aufträge anzeigen</summary>${done.map(o=>`<div class="teamorder">#${o.id} · ${esc(o.order_type)} · ${esc(o.customers?.name||'Kunde')}</div>`).join('')}</details>`:''}</div>`}).join('')||'<p class="muted">Keine Teamprofile gefunden.</p>'}
-function renderCalendar(){if(!$('calendarGrid'))return;const y=calDate.getFullYear(),m=calDate.getMonth();$('calTitle').textContent=calDate.toLocaleDateString('de-DE',{month:'long',year:'numeric'});const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const days=new Date(y,m+1,0).getDate();let cells='';for(let i=0;i<start;i++)cells+='<div class="calday empty"></div>';for(let d=1;d<=days;d++){const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const dayOrders=orders.filter(o=>o.delivery_date===iso);cells+=`<button class="calday" data-date="${iso}"><b>${d}</b>${dayOrders.slice(0,3).map(o=>`<span>${esc(o.order_type)} · ${esc(o.customers?.name||'Kunde')}</span>`).join('')}${dayOrders.length>3?`<small>+${dayOrders.length-3} weitere</small>`:''}</button>`;}$('calendarGrid').innerHTML=cells;document.querySelectorAll('.calday[data-date]').forEach(b=>b.onclick=()=>{const date=b.dataset.date;$('date').value=date;page('verkauf')});}
-$('calPrev').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1);renderCalendar()};$('calNext').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1);renderCalendar()};$('calendarNew').onclick=()=>{page('verkauf');$('date').focus()};
+function renderTeam(){
+ $('teamStats').innerHTML=profiles.map(p=>{
+   const assigned=orders.filter(o=>o.assigned_to===p.id&&!['abgeschlossen','storniert'].includes(o.status));
+   const done=orders.filter(o=>o.completed_by===p.id&&o.status==='abgeschlossen');
+   const appts=teamAppointments.filter(a=>a.profile_id===p.id);
+   return `<button class="teamcard teamclick" data-team="${p.id}"><div class="teamtop"><div><h4>${esc(p.display_name||p.email)}</h4><p>${esc(p.email||'')}</p></div><div class="teamnums"><span><b>${assigned.length}</b><small>Aktiv</small></span><span><b>${done.length}</b><small>Erledigt</small></span><span><b>${appts.length}</b><small>Termine</small></span></div></div></button>`
+ }).join('')||'<p class="muted">Keine Teamprofile gefunden.</p>';
+ document.querySelectorAll('[data-team]').forEach(b=>b.onclick=()=>openTeamProfile(b.dataset.team));
+ if(selectedTeamProfile) renderTeamProfile();
+}
+function openTeamProfile(id){
+ selectedTeamProfile=id;
+ $('teamListView').hidden=true;
+ $('teamProfileView').hidden=false;
+ renderTeamProfile();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+$('backToTeam').onclick=()=>{
+ selectedTeamProfile=null;
+ $('teamProfileView').hidden=true;
+ $('teamListView').hidden=false;
+};
+function renderTeamProfile(){
+ const p=profiles.find(x=>x.id===selectedTeamProfile);if(!p)return;
+ const active=orders.filter(o=>o.assigned_to===p.id&&!['abgeschlossen','storniert'].includes(o.status));
+ const done=orders.filter(o=>o.completed_by===p.id&&o.status==='abgeschlossen');
+ const notes=teamNotes.filter(n=>n.profile_id===p.id);
+ const appts=teamAppointments.filter(a=>a.profile_id===p.id);
+ $('tpName').textContent=p.display_name||p.email;
+ $('tpEmail').textContent=p.email||'';
+ $('tpActive').textContent=active.length;
+ $('tpDone').textContent=done.length;
+ $('tpAppointments').textContent=appts.length;
+ $('tpNotesList').innerHTML=notes.map(n=>`<div class="profileentry"><div><p>${esc(n.note)}</p><small>${new Date(n.created_at).toLocaleString('de-DE')}</small></div><button class="danger compact" data-del-note="${n.id}">×</button></div>`).join('')||'<p class="muted">Noch keine Notizen.</p>';
+ $('tpAppointmentsList').innerHTML=appts.map(a=>`<div class="profileentry"><div><b>${esc(a.title)}</b><p>${new Date(a.appointment_date+'T12:00:00').toLocaleDateString('de-DE')}${a.appointment_time?' · '+String(a.appointment_time).slice(0,5)+' Uhr':''}</p>${a.notes?`<small>${esc(a.notes)}</small>`:''}</div><div class="mini-actions"><button class="secondary compact" data-edit-appt="${a.id}">✎</button><button class="danger compact" data-del-appt="${a.id}">×</button></div></div>`).join('')||'<p class="muted">Noch keine Termine.</p>';
+ $('tpCompletedOrders').innerHTML=done.map(o=>`<div class="teamorder">#${o.id} · ${esc(o.order_type)} · ${esc(o.customers?.name||'Kunde')}${o.completed_at?' · '+new Date(o.completed_at).toLocaleDateString('de-DE'):''}</div>`).join('')||'<p class="muted">Noch keine abgeschlossenen Aufträge.</p>';
+ document.querySelectorAll('[data-del-note]').forEach(b=>b.onclick=()=>deleteTeamNote(+b.dataset.delNote));
+ document.querySelectorAll('[data-edit-appt]').forEach(b=>b.onclick=()=>editTeamAppointment(+b.dataset.editAppt));
+ document.querySelectorAll('[data-del-appt]').forEach(b=>b.onclick=()=>deleteTeamAppointment(+b.dataset.delAppt));
+}
+$('addTeamNote').onclick=async()=>{
+ try{
+  const note=$('tpNote').value.trim();if(!selectedTeamProfile||!note)return;
+  await insert('team_notes',{profile_id:selectedTeamProfile,note,created_by:me.id},false);
+  $('tpNote').value='';await load();
+ }catch(e){alert(e.message)}
+};
+async function deleteTeamNote(id){if(!confirm('Notiz löschen?'))return;try{await remove('team_notes','id=eq.'+id);await load()}catch(e){alert(e.message)}}
+function resetTeamAppointment(){['tpAppointmentId','tpAppointmentTitle','tpAppointmentDate','tpAppointmentTime','tpAppointmentNotes'].forEach(x=>$(x).value='')}
+$('cancelTeamAppointment').onclick=resetTeamAppointment;
+$('saveTeamAppointment').onclick=async()=>{
+ try{
+  const title=$('tpAppointmentTitle').value.trim(),date=$('tpAppointmentDate').value;if(!selectedTeamProfile||!title||!date)return alert('Bitte Titel und Datum eingeben.');
+  const obj={profile_id:selectedTeamProfile,title,appointment_date:date,appointment_time:$('tpAppointmentTime').value||null,notes:$('tpAppointmentNotes').value.trim()||null,updated_at:new Date().toISOString()};
+  const id=+$('tpAppointmentId').value||0;
+  if(id)await update('team_appointments',obj,'id=eq.'+id);else await insert('team_appointments',{...obj,created_by:me.id},false);
+  resetTeamAppointment();await load();
+ }catch(e){alert(e.message)}
+};
+function editTeamAppointment(id){const a=teamAppointments.find(x=>x.id===id);if(!a)return;$('tpAppointmentId').value=a.id;$('tpAppointmentTitle').value=a.title||'';$('tpAppointmentDate').value=a.appointment_date||'';$('tpAppointmentTime').value=(a.appointment_time||'').slice(0,5);$('tpAppointmentNotes').value=a.notes||'';}
+async function deleteTeamAppointment(id){if(!confirm('Termin löschen?'))return;try{await remove('team_appointments','id=eq.'+id);await load()}catch(e){alert(e.message)}}
+
+function calendarDayItems(iso){
+ const own=calendarEvents.filter(e=>e.event_date===iso).map(e=>({type:'event',title:e.title,id:e.id,time:e.start_time}));
+ const orderItems=orders.filter(o=>o.delivery_date===iso).map(o=>({type:'order',title:`${o.order_type} · ${o.customers?.name||'Kunde'}`,id:o.id,time:null}));
+ return [...own,...orderItems].sort((a,b)=>String(a.time||'99:99').localeCompare(String(b.time||'99:99')));
+}
+function renderCalendar(){
+ if(!$('calendarGrid'))return;
+ const y=calDate.getFullYear(),m=calDate.getMonth();
+ $('calTitle').textContent=calDate.toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+ const first=new Date(y,m,1),start=(first.getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+ let cells='';
+ for(let i=0;i<start;i++)cells+='<div class="calday empty"></div>';
+ for(let d=1;d<=days;d++){
+   const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+   const items=calendarDayItems(iso);
+   cells+=`<button class="calday" data-caldate="${iso}"><b>${d}</b>${items.slice(0,3).map(x=>`<span class="${x.type==='order'?'order-event':''}">${x.time?String(x.time).slice(0,5)+' · ':''}${esc(x.title)}</span>`).join('')}${items.length>3?`<small>+${items.length-3} weitere</small>`:''}</button>`;
+ }
+ $('calendarGrid').innerHTML=cells;
+ document.querySelectorAll('[data-caldate]').forEach(b=>b.onclick=()=>openCalendarEditor(null,b.dataset.caldate));
+ renderCalendarList();
+}
+function renderCalendarList(){
+ const y=calDate.getFullYear(),m=calDate.getMonth();
+ const items=calendarEvents.filter(e=>{const d=new Date(e.event_date+'T12:00:00');return d.getFullYear()===y&&d.getMonth()===m});
+ $('calendarList').innerHTML=items.map(e=>`<div class="profileentry"><div><b>${esc(e.title)}</b><p>${new Date(e.event_date+'T12:00:00').toLocaleDateString('de-DE')}${e.start_time?' · '+String(e.start_time).slice(0,5)+' Uhr':''}${e.end_time?' – '+String(e.end_time).slice(0,5)+' Uhr':''}</p>${e.notes?`<small>${esc(e.notes)}</small>`:''}</div><div class="mini-actions"><button class="secondary compact" data-edit-cal="${e.id}">✎</button><button class="danger compact" data-del-cal="${e.id}">×</button></div></div>`).join('')||'<p class="muted">Keine freien Kalendereinträge in diesem Monat.</p>';
+ document.querySelectorAll('[data-edit-cal]').forEach(b=>b.onclick=()=>openCalendarEditor(+b.dataset.editCal));
+ document.querySelectorAll('[data-del-cal]').forEach(b=>b.onclick=()=>deleteCalendarEvent(+b.dataset.delCal));
+}
+function openCalendarEditor(id=null,date=null){
+ const e=id?calendarEvents.find(x=>x.id===id):null;
+ $('calEventId').value=e?.id||'';
+ $('calEventTitle').value=e?.title||'';
+ $('calEventDate').value=e?.event_date||date||new Date().toISOString().slice(0,10);
+ $('calEventStart').value=(e?.start_time||'').slice(0,5);
+ $('calEventEnd').value=(e?.end_time||'').slice(0,5);
+ $('calEventNotes').value=e?.notes||'';
+ $('calendarEditorTitle').textContent=e?'Kalendereintrag bearbeiten':'Kalendereintrag anlegen';
+ $('calendarEditor').hidden=false;
+ $('calEventTitle').focus();
+}
+function closeCalendarEditor(){$('calendarEditor').hidden=true;['calEventId','calEventTitle','calEventDate','calEventStart','calEventEnd','calEventNotes'].forEach(x=>$(x).value='')}
+$('calendarNew').onclick=()=>openCalendarEditor();
+$('cancelCalEvent').onclick=closeCalendarEditor;
+$('saveCalEvent').onclick=async()=>{
+ try{
+  const title=$('calEventTitle').value.trim(),date=$('calEventDate').value;if(!title||!date)return alert('Bitte Titel und Datum eingeben.');
+  const obj={title,event_date:date,start_time:$('calEventStart').value||null,end_time:$('calEventEnd').value||null,notes:$('calEventNotes').value.trim()||null,updated_at:new Date().toISOString()};
+  const id=+$('calEventId').value||0;
+  if(id)await update('calendar_events',obj,'id=eq.'+id);else await insert('calendar_events',{...obj,created_by:me.id},false);
+  closeCalendarEditor();await load();
+ }catch(e){alert(e.message)}
+};
+async function deleteCalendarEvent(id){if(!confirm('Kalendereintrag löschen?'))return;try{await remove('calendar_events','id=eq.'+id);await load()}catch(e){alert(e.message)}}
+$('calPrev').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1);renderCalendar()};
+$('calNext').onclick=()=>{calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1);renderCalendar()};
 try{const saved=JSON.parse(localStorage.getItem('bm_session')||'null');if(saved)saveSession(saved)}catch(e){}
 session();

@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1f5b2b">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css?v=5.0">
-<title>BallenManager Team</title>
+<link rel="stylesheet" href="style.css?v=6.0">
+<title>FarmManager</title>
 </head>
 <body>
-<header><h1>🌾 BallenManager</h1><p>Verkauf · Dienstleistungen · Kunden · Aufträge</p></header>
+<header><h1>🌾 FarmManager</h1><p>Verkauf · Dienstleistungen · Kunden · Aufträge</p></header>
 <main>
 <section id="auth" class="card auth">
 <h2>Anmelden</h2>
@@ -19,7 +19,7 @@
 <p id="authmsg" class="muted"></p>
 </section>
 <div id="app" hidden>
-<section class="card userbar"><div><b id="who"></b><small id="role"></small></div><button id="logout" class="secondary compact">Abmelden</button></section>
+<section class="userbar"><div class="usermini"><b id="who"></b><small id="role"></small></div><button id="logout" class="secondary compact">Abmelden</button></section>
 <nav>
 <button class="active" data-page="start">🏠<span>Übersicht</span></button>
 <button data-page="verkauf">🛒<span>Verkauf</span></button>
@@ -68,10 +68,36 @@
 </section>
 <section id="p-kunden" class="page"><h2>Kunden</h2><div class="card"><h3 id="customerFormTitle">Kunde anlegen</h3><input id="customerEditId" type="hidden"><div class="grid"><div><label>Name *</label><input id="cn"></div><div><label>Firma</label><input id="cc"></div><div><label>Telefon</label><input id="cp"></div><div><label>E-Mail</label><input id="ce"></div><div class="full"><label>Adresse</label><input id="ca"></div><div class="full"><label>Notiz</label><textarea id="cno"></textarea></div></div><div class="rowbuttons"><button id="addCustomer">Kunde speichern</button><button id="cancelCustomerEdit" class="secondary" hidden>Abbrechen</button></div></div><div class="card"><input id="custSearch" placeholder="Kunden suchen …"><div id="customers"></div></div></section>
 <section id="p-auftraege" class="page"><h2>Aufträge & Reservierungen</h2><div class="card"><div class="filters"><select id="fstatus"><option value="">Alle Status</option><option value="reserviert">Offen / Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">In Bearbeitung</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option><option value="abgeschlossen">Abgeschlossen</option><option value="storniert">Storniert</option></select><input id="osearch" placeholder="Kunde / Kategorie suchen …"></div><div id="orders"></div></div></section>
-<section id="p-kalender" class="page"><div class="calendarhead"><h2>Kalender</h2><button id="calendarNew" class="compact">+ Auftrag</button></div><div class="card"><div class="calendar-nav"><button id="calPrev" class="secondary compact">‹</button><strong id="calTitle"></strong><button id="calNext" class="secondary compact">›</button></div><div class="calendar-week"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div><div id="calendarGrid" class="calendar-grid"></div></div></section>
-<section id="p-team" class="page"><h2>Team & Leistungen</h2><div class="card"><p class="muted">Abgeschlossene Aufträge werden dem Mitarbeiter gutgeschrieben, der den Auftrag auf „Abgeschlossen“ setzt.</p><div id="teamStats"></div></div></section>
+<section id="p-kalender" class="page">
+<div class="calendarhead"><h2>Kalender</h2><button id="calendarNew" class="compact">+ Termin</button></div>
+<div id="calendarEditor" class="card" hidden>
+<h3 id="calendarEditorTitle">Kalendereintrag</h3>
+<input type="hidden" id="calEventId">
+<div class="grid">
+<div class="full"><label>Titel *</label><input id="calEventTitle" placeholder="z. B. Werkstatt, Besprechung, Einsatz"></div>
+<div><label>Datum *</label><input id="calEventDate" type="date"></div>
+<div><label>Von</label><input id="calEventStart" type="time"></div>
+<div><label>Bis</label><input id="calEventEnd" type="time"></div>
+<div class="full"><label>Notiz</label><textarea id="calEventNotes"></textarea></div>
+</div>
+<div class="rowbuttons"><button id="saveCalEvent">Speichern</button><button id="cancelCalEvent" class="secondary">Abbrechen</button></div>
+</div>
+<div class="card"><div class="calendar-nav"><button id="calPrev" class="secondary compact">‹</button><strong id="calTitle"></strong><button id="calNext" class="secondary compact">›</button></div><div class="calendar-week"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div><div id="calendarGrid" class="calendar-grid"></div></div>
+<div class="card"><h3>Termine im Monat</h3><div id="calendarList"></div></div>
+</section>
+<section id="p-team" class="page">
+<h2>Team & Leistungen</h2>
+<div id="teamListView" class="card"><p class="muted">Mitarbeiter anklicken, um Notizen, Termine und abgeschlossene Aufträge zu sehen.</p><div id="teamStats"></div></div>
+<div id="teamProfileView" hidden>
+<button id="backToTeam" class="secondary compact">← Teamübersicht</button>
+<div class="card teamprofilehead"><h2 id="tpName"></h2><p id="tpEmail" class="muted"></p><div class="kpis kpis3"><div><small>Aktive Aufträge</small><b id="tpActive">0</b></div><div><small>Abgeschlossen</small><b id="tpDone">0</b></div><div><small>Termine</small><b id="tpAppointments">0</b></div></div></div>
+<div class="card"><h3>Notizen</h3><div class="grid"><div class="full"><textarea id="tpNote" placeholder="Notiz zum Mitarbeiter …"></textarea></div></div><button id="addTeamNote">Notiz speichern</button><div id="tpNotesList"></div></div>
+<div class="card"><h3>Termine</h3><input type="hidden" id="tpAppointmentId"><div class="grid"><div><label>Titel *</label><input id="tpAppointmentTitle"></div><div><label>Datum *</label><input id="tpAppointmentDate" type="date"></div><div><label>Uhrzeit</label><input id="tpAppointmentTime" type="time"></div><div class="full"><label>Notiz</label><input id="tpAppointmentNotes"></div></div><div class="rowbuttons"><button id="saveTeamAppointment">Termin speichern</button><button id="cancelTeamAppointment" class="secondary">Zurücksetzen</button></div><div id="tpAppointmentsList"></div></div>
+<div class="card"><h3>Abgeschlossene Aufträge</h3><div id="tpCompletedOrders"></div></div>
+</div>
+</section>
 <section id="p-bestand" class="page"><h2>Bestand</h2><div class="card"><div id="inventory"></div></div></section>
 </div></main>
-<footer>Gemeinsame Team-Datenbank · BallenManager</footer>
-<script src="app.js?v=5.0"></script>
+<footer>Gemeinsame Team-Datenbank · FarmManager</footer>
+<script src="app.js?v=6.0"></script>
 </body></html>
