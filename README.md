@@ -1,9 +1,6 @@
-# BallenManager V4.1 – Login-Fix
+# BallenManager V4.4 – Login ohne CDN-Bibliothek
 
-Diese Version behebt das Login-Problem nach V4:
-- alte Service-Worker und Browser-Caches werden beim Laden entfernt
-- app.js wird mit neuer Versionsnummer geladen
-- Supabase-Skript wird cache-busted geladen
-- Login zeigt bei einem technischen Fehler eine sichtbare Fehlermeldung
+Diese Version verwendet für Anmeldung und Datenbankzugriffe direkt die Supabase REST-APIs.
+Damit ist keine externe supabase-js Bibliothek mehr nötig.
 
-Die Verkaufsbereiche aus V4 bleiben erhalten.
+Bestehende Funktionen und Verkaufskategorien bleiben erhalten.

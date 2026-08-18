@@ -86,21 +86,6 @@
 </main>
 <footer>Gemeinsame Team-Datenbank · BallenManager</footer>
 
-<script>
-(async function(){
-  try {
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      for (const r of regs) await r.unregister();
-    }
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      for (const k of keys) await caches.delete(k);
-    }
-  } catch(e) {}
-})();
-</script>
-
-<script type="module" src="loader.js?v=4.3"></script>
+<script src="app.js?v=4.4"></script>
 </body>
 </html>
