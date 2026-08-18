@@ -1,10 +1,9 @@
-# BallenManager V4
+# BallenManager V4.1 – Login-Fix
 
-Verkaufskategorien:
-- Ballen (Stück)
-- Forstfräsen (Kilometer oder Quadratmeter)
-- Erdmulde (Kilometer oder Quadratmeter)
-- Mulchen / Auslegemulchen / Seitenmulcher (Kilometer oder Quadratmeter)
-- Bankettfräse (Kilometer oder Quadratmeter)
+Diese Version behebt das Login-Problem nach V4:
+- alte Service-Worker und Browser-Caches werden beim Laden entfernt
+- app.js wird mit neuer Versionsnummer geladen
+- Supabase-Skript wird cache-busted geladen
+- Login zeigt bei einem technischen Fehler eine sichtbare Fehlermeldung
 
-Alle Leistungen können als Auftrag/Reservierung mit Kunde, Status, Termin, Fahrtkosten und Zahlungsstatus gespeichert werden.
+Die Verkaufsbereiche aus V4 bleiben erhalten.

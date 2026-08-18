@@ -79,5 +79,20 @@
 </div>
 </main>
 <footer>Gemeinsame Team-Datenbank · BallenManager</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script>
+<script>
+(async function(){
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const r of regs) await r.unregister();
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      for (const k of keys) await caches.delete(k);
+    }
+  } catch(e) { console.log("Cache reset:", e); }
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js?v=4.1"></script>
+<script src="app.js?v=4.1"></script>
 </body></html>
