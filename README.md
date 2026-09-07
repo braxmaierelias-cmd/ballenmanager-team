@@ -1,13 +1,24 @@
-# FarmManager V8 – Modern UI
+# FarmManager V9 – komplett neues Design
 
-Nur die Oberfläche wurde neu gestaltet. Die bestehende FarmManager-V7.1-Logik, der Login,
-die Supabase-Datenbank und alle Funktionen bleiben erhalten.
+Nur das Erscheinungsbild wird geändert.
 
-Neu:
-- dunkle moderne Seitenleiste am Desktop
-- helle obere Benutzerleiste
-- Cyan-Akzentfarbe
-- moderne KPI-Karten und Statusfarben
-- neue Formulare, Tabellen, Bestands- und Maschinenkarten
-- mobile Navigation am unteren Bildschirmrand
-- vollständig deutsch
+Unverändert bleiben:
+- Login
+- Supabase
+- Kunden
+- Verkauf und Dienstleistungen
+- Aufträge / Reservierungen
+- Bestand
+- Team
+- Kalender
+- Gewinnübersicht
+- Maschinenpark
+
+Neue Optik:
+- Graphit + Olive + Sand + Kupfer
+- hochwertigeres Desktop-Layout
+- neue KPI-Karten
+- neue Karten, Formulare und Statusanzeigen
+- mobile Navigation weiterhin unten
+
+Wichtig: app.js nicht ersetzen.
