@@ -1,24 +1,16 @@
-# FarmManager V9 – komplett neues Design
+# FarmManager V10 – Karten-Dashboard
 
-Nur das Erscheinungsbild wird geändert.
+Komplett neuer Aufbau auf Basis des ausgewählten Designs Nr. 1.
 
-Unverändert bleiben:
-- Login
-- Supabase
+Alle bestehenden Funktionen bleiben erhalten:
+- Login / Supabase
+- Verkauf & Dienstleistungen
 - Kunden
-- Verkauf und Dienstleistungen
-- Aufträge / Reservierungen
-- Bestand
-- Team
+- Aufträge
 - Kalender
-- Gewinnübersicht
+- Team
+- Bestand
 - Maschinenpark
+- Gewinnübersicht
 
-Neue Optik:
-- Graphit + Olive + Sand + Kupfer
-- hochwertigeres Desktop-Layout
-- neue KPI-Karten
-- neue Karten, Formulare und Statusanzeigen
-- mobile Navigation weiterhin unten
-
-Wichtig: app.js nicht ersetzen.
+Wichtig: Die bestehende app.js bleibt unverändert.
