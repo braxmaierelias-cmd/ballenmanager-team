@@ -1,32 +1,30 @@
-# FarmManager V12 – Design 2 + Felder/Schläge
+# FarmManager V13 – Felder separat + Bearbeiten
 
-Neue Menü-Reihenfolge:
+Menü:
 1. Dashboard
 2. Arbeitszeit
 3. Live Karte
 4. Verkauf
 5. Aufträge
-6. Kunden
-7. Kalender
-8. Maschinen
-9. Bestand
-10. Team
+6. Felder
+7. Kunden
+8. Kalender
+9. Maschinen
+10. Bestand
+11. Team
 
 Neu:
-- Helles Design Nr. 2
-- Felder/Schläge per Karte als Polygon anlegen
-- Feld direkt einem Kunden zuordnen
-- Fläche in ha automatisch aus Polygon berechnen (kann manuell angepasst werden)
-- Kultur/Nutzung und Notiz speichern
-- Mehrere Felder bei Auftragserstellung auswählen
-- Felder werden am Auftrag gespeichert
-- Während eines laufenden Einsatzes Feld wechseln bzw. weiteres Kundenfeld auswählen
-- Arbeitszeit wird in Zeitabschnitten je Feld gespeichert
-- Pausen werden nicht als Feldzeit mitgerechnet
-- Feldzeiten werden am Auftrag angezeigt
-- Live-Karte zeigt zusätzlich gespeicherte Feldgrenzen
-- Bestehende Arbeitszeit- und GPS-Funktionen bleiben erhalten
+- Eigene Kategorie Felder direkt nach Aufträge
+- Alle Felder in einer Liste
+- Feldgrenzen auf Karte einzeichnen
+- Notizen direkt am Feld
+- Kunde optional zuordnen und später ändern
+- Kundenseite zeigt zugeordnete Felder
+- Auftragserstellung zeigt Kundenfelder
+- Eigene gespeicherte Arbeitstage nachträglich bearbeiten/ergänzen
+- Abgeschlossene Aufträge wieder bearbeiten
 
-Wichtig:
-- app.js bleibt unverändert.
-- Benötigte Supabase-Tabellen und Sicherheitsregeln wurden bereits eingerichtet.
+Google Maps:
+Für eine echte Google-Karte wird ein Google Maps Platform API-Key benötigt. Bis dieser hinterlegt ist, bleibt die bereits funktionsfähige Kartenansicht aktiv. Die Datenstruktur ist dafür vorbereitet.
+
+Wichtig: app.js bleibt unverändert.
