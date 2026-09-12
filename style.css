@@ -50,3 +50,19 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
   .customer-actions,.inventory-actions{width:100%}
   .customer-actions button,.inventory-actions button{flex:1}
 }
+
+
+/* ===== FarmManager V13.8 Auftragsverwaltung ===== */
+.fm-order-editor{margin:18px 0 22px}
+.order-admin-actions,.completed-admin-actions{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:10px
+}
+.order-admin-actions button,.completed-admin-actions button{width:auto;margin:0}
+.completed-card>.sectionhead{align-items:center}
+.completed-card>.sectionhead:after{
+  content:"Reihenfolge mit ↑ / ↓ selbst festlegen";
+  font-size:12px;color:var(--muted,#788178)
+}
+@media(max-width:700px){
+  .order-admin-actions button,.completed-admin-actions button{flex:1 1 45%}
+}

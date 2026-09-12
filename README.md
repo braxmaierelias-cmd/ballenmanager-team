@@ -79,3 +79,14 @@ Wichtig: app.js bleibt unverändert.
 - Aktive Aufträge können vollständig bearbeitet werden.
 - `app.js` bleibt unverändert.
 - Neu hinzugekommen: `uiupdate.js`.
+
+## V13.8 – Aufträge, Löschen und manuelle Sortierung
+- Kunden können jetzt immer gelöscht werden. Aufträge und Arbeitszeiten bleiben erhalten und verlieren nur die Kundenzuordnung.
+- Aktive Aufträge: Bearbeiten + Löschen.
+- Abgeschlossene Aufträge: Bearbeiten + Löschen.
+- Neuer eigener Auftragseditor für Kunde, Mitarbeiter, Zahlung, Termin, Produkt/Leistung, Menge, Einheit, Preis und Notiz.
+- Abgeschlossene Aufträge können mit „↑ Nach oben“ / „↓ Nach unten“ frei sortiert werden.
+- Die manuelle Reihenfolge wird in Supabase gespeichert.
+- Bereits abgebuchter Ballenbestand wird beim Löschen eines abgeschlossenen Auftrags nicht automatisch zurückgebucht.
+- Supabase wurde vorbereitet, sodass Aufträge/Kunden auch bei vorhandenen Arbeitszeiten gelöscht werden können; die Arbeitszeit bleibt bestehen.
+- Neu hinzugekommen: `orderupdate.js`.
