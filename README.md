@@ -42,3 +42,10 @@ Wichtig: app.js bleibt unverändert.
 - Doppelinitialisierung der Feldkarte behoben
 - Safari/iPad: vorhandene Leaflet-Karte wird wiederverwendet
 - Polygon-Zeichenfunktion ohne verpflichtende Kundenauswahl
+
+
+## V13.3 Kartenfix
+- Feldkarte wird beim Öffnen vollständig frisch erzeugt
+- Alte/störende Leaflet-Instanzen werden entfernt
+- Eigener Untercontainer verhindert 'Map container already initialized'
+- Fehlertext wird direkt rechts oben angezeigt, falls doch noch etwas scheitert
