@@ -48,3 +48,35 @@ button{width:100%;border:0;border-radius:9px;padding:11px 13px;margin-top:8px;ba
  .kpis{grid-template-columns:1fr 1fr}.dashboard-grid,.split,.stock-layout,.calendar-layout{grid-template-columns:1fr}.cats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.grid .full{grid-column:auto}.stock{grid-template-columns:1fr 1fr 1fr}.stock>div:first-child{grid-column:1/-1}.dashstock{grid-template-columns:1fr 1fr 1fr}.dashstock>b{grid-column:1/-1}.machinegrid{grid-template-columns:1fr}.actions,.filters{flex-direction:column}
 }
 @media(max-width:520px){.hero-actions{flex-direction:column}.hero-actions button{width:100%}.kpis3{grid-template-columns:1fr}.quick-grid{grid-template-columns:1fr 1fr}.calday{min-height:58px}.calday span{display:none}.card{padding:14px}.cats{grid-template-columns:1fr 1fr}}
+
+
+/* ===== FarmManager V11: Arbeitszeit & Live-Karte ===== */
+.worktime-layout{display:grid;grid-template-columns:.9fr 1.35fr;gap:17px}
+.work-clock-card{position:sticky;top:82px;align-self:start}
+.work-clock{margin:14px 0 18px;padding:22px;text-align:center;border:1px solid #344235;border-radius:16px;background:linear-gradient(145deg,#111713,#1e291f)}
+.work-clock small{display:block;color:#78847a;font-size:9px;text-transform:uppercase;letter-spacing:.12em}
+.work-clock strong{display:block;margin:8px 0 11px;font-size:38px;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.work-state{display:inline-flex;padding:6px 10px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.work-state.idle{background:#252f26;color:#9aa59b}.work-state.running{background:#274224;color:#aed78d}.work-state.paused{background:#493718;color:#edbd68}
+.work-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.work-actions button:only-child{grid-column:1/-1}
+.work-start{background:#84aa50}.work-pause{background:#c28f3f}.work-resume{background:#779b4a}.work-stop{background:#9d4c4c;color:white}
+.work-details{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.work-details>div{padding:10px;border-radius:10px;background:#202920;text-align:center}
+.work-details small,.work-details b{display:block}.work-details small{font-size:8px;color:#788379;text-transform:uppercase}.work-details b{margin-top:4px;font-size:10px}
+.work-total{padding:8px 10px;border-radius:10px;background:#263621;color:#b4d591;font-size:10px;font-weight:900}
+.work-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid #2b362c}
+.work-row:first-child{border-top:0}.work-row b{font-size:11px}.work-row p{margin:4px 0;color:#7d887f;font-size:9px}.work-row-right{text-align:right}.work-row-right strong,.work-row-right span,.work-row-right em{display:block}.work-row-right strong{font-size:13px}.work-row-right span{margin-top:3px;color:#727e74;font-size:8px}.work-row-right em{margin-top:5px;font-size:8px;font-style:normal}.work-row-right em.running{color:#a7ca84}.work-row-right em.paused{color:#dfad5b}.work-row-right em.completed{color:#7e8a80}
+.order-worktime{margin-top:10px;padding:10px;border-radius:9px;background:#1e281f;border:1px solid #2c392d}.order-worktime b,.order-worktime span{display:block}.order-worktime b{font-size:9px;color:#a8c985}.order-worktime span{margin-top:3px;color:#879289;font-size:8px}
+
+.live-grid{display:grid;grid-template-columns:1.8fr .7fr;gap:17px}.live-map-card{padding:0;overflow:hidden;position:relative}#liveMap{width:100%;height:610px;background:#202820}.map-legend{position:absolute;left:12px;bottom:12px;z-index:500;background:rgba(17,23,19,.88);padding:8px 10px;border-radius:8px;font-size:8px;display:flex;gap:10px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}.dot.online{background:#83b858}.dot.stale{background:#b58a4f}
+.live-machine-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;width:100%;padding:11px 0;margin:0;border:0;border-top:1px solid #2a352b;border-radius:0;background:transparent;color:inherit;text-align:left}.live-machine-row:first-child{border-top:0}.live-machine-row:hover{transform:none;box-shadow:none;background:#1d261e}.live-machine-icon{display:grid;place-items:center;width:37px;height:37px;border-radius:10px;background:#263622;font-size:20px}.live-machine-row b,.live-machine-row small{display:block}.live-machine-row b{font-size:10px}.live-machine-row small{margin-top:3px;color:#7e897f;font-size:8px}.live-machine-meta{text-align:right}.live-machine-meta b{font-size:9px}.online-text{color:#9bc77d!important}.stale-text{color:#c79a57!important}
+.machine-map-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;font-size:23px;border:3px solid white;box-shadow:0 5px 15px rgba(0,0,0,.35)}.machine-map-icon.fresh{background:#759c49}.machine-map-icon.stale{background:#8b744e}.machine-map-icon-wrap{background:none!important;border:0!important}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#182019;color:#edf0ec}.leaflet-popup-content{font:11px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+
+@media(max-width:900px){
+  .worktime-layout,.live-grid{grid-template-columns:1fr}.work-clock-card{position:static}.work-clock strong{font-size:34px}#liveMap{height:62vh;min-height:420px}.work-details{grid-template-columns:1fr 1fr 1fr}
+}
+@media(max-width:520px){
+  .work-actions{grid-template-columns:1fr}.work-actions button{grid-column:auto!important}.work-details{grid-template-columns:1fr}.live-list-card{margin-bottom:10px}
+}
