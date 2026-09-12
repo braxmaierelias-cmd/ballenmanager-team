@@ -90,3 +90,11 @@ Wichtig: app.js bleibt unverändert.
 - Bereits abgebuchter Ballenbestand wird beim Löschen eines abgeschlossenen Auftrags nicht automatisch zurückgebucht.
 - Supabase wurde vorbereitet, sodass Aufträge/Kunden auch bei vorhandenen Arbeitszeiten gelöscht werden können; die Arbeitszeit bleibt bestehen.
 - Neu hinzugekommen: `orderupdate.js`.
+
+## V13.9 – Löschfix
+- Aufträge sind jetzt auch dann löschbar, wenn Arbeitszeiten damit verknüpft sind.
+- Die Arbeitszeiten bleiben als Historie erhalten; ihre Auftragsverknüpfung wird beim Löschen entfernt.
+- Der doppelte untere „Bearbeiten“-Button wurde entfernt.
+- Es bleibt nur der Bearbeiten-Button in der oberen Aktionsleiste.
+- Supabase-Validierung wurde angepasst, damit SET NULL beim Löschen nicht mehr blockiert.
+- Neu hinzugekommen: `orderfix.js`.

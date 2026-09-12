@@ -66,3 +66,14 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 @media(max-width:700px){
   .order-admin-actions button,.completed-admin-actions button{flex:1 1 45%}
 }
+
+
+/* FarmManager V13.9 */
+#orders .order > button:not([data-finish]),
+#completedOrders .order > button{
+  display:none;
+}
+#orders .order .order-admin-actions button,
+#completedOrders .order .completed-admin-actions button{
+  display:inline-flex;
+}
