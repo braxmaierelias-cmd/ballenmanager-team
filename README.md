@@ -49,3 +49,9 @@ Wichtig: app.js bleibt unverändert.
 - Alte/störende Leaflet-Instanzen werden entfernt
 - Eigener Untercontainer verhindert 'Map container already initialized'
 - Fehlertext wird direkt rechts oben angezeigt, falls doch noch etwas scheitert
+
+
+## V13.4 – Leaflet-Konflikt behoben
+- Ursache gefunden: app.js verwendet bereits die Variable `L` für Status-Texte.
+- Leaflet wird deshalb ab jetzt explizit über `window.L` angesprochen.
+- Feldkarte, Polygon-Zeichnen und vorhandene Feldgrenzen verwenden den richtigen Karten-Namespace.
