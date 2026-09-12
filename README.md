@@ -36,3 +36,9 @@ Wichtig: app.js bleibt unverändert.
 - Felder können jetzt auch ohne Kundenzuordnung eingezeichnet werden
 - „+ Neues Feld“ initialisiert die Karte zuverlässig
 - Kartengröße wird nach Navigation/Rotation neu berechnet
+
+
+## V13.2 Kartenfix
+- Doppelinitialisierung der Feldkarte behoben
+- Safari/iPad: vorhandene Leaflet-Karte wird wiederverwendet
+- Polygon-Zeichenfunktion ohne verpflichtende Kundenauswahl
