@@ -107,3 +107,12 @@ Wichtig: app.js bleibt unverändert.
 - Auftragsverwaltung: im Bearbeiten-Dialog mehrere Felder auswählbar und speicherbar.
 - Neuer Patch: `featurefix14.js`.
 \n\n## V14.1\n- Verkauf heißt jetzt Auftrag erstellen.\n- Oben rechts: + Arbeit / Maschine.\n- Neue teamweite Arbeiten/Kategorien können mit Name, Symbol und Einheiten angelegt werden.\n- Sie erscheinen auch in der Arbeitszeit-Auswahl.\n- Neu: worktypes14.js.\n
+## V14.2 – Maschinenpark + Anbaugeräte
+- Unter Maschinen gibt es jetzt zwei Bereiche: Maschinenpark und Anbaugeräte.
+- Anbaugeräte können mit Name, Kategorie, Arbeitsbreite, Betriebsstunden, Kosten, Wartungsdaten, Nutzer und Notizen angelegt/bearbeitet werden.
+- Maschinenpark und Anbaugeräte sind getrennt auswählbar.
+- Arbeitszeiterfassung: Maschine + optionales Anbaugerät.
+- Auftrag erstellen: Maschine + optionales Anbaugerät.
+- Auftragseditor: Maschine + Anbaugerät nachträglich bearbeitbar.
+- Supabase wurde um `machine_kind`, `width_m`, `implement_id` und Maschinenverknüpfungen für Aufträge erweitert.
+- Neu: `implements14.js`.
