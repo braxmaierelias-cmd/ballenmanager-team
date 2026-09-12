@@ -98,3 +98,11 @@ Wichtig: app.js bleibt unverändert.
 - Es bleibt nur der Bearbeiten-Button in der oberen Aktionsleiste.
 - Supabase-Validierung wurde angepasst, damit SET NULL beim Löschen nicht mehr blockiert.
 - Neu hinzugekommen: `orderfix.js`.
+
+## V14 – Live-Karte + Mehrfachfelder
+- Live-Tracking-Karte auf `window.L` umgestellt und frisch initialisiert.
+- Aktive Positionen und Feldgrenzen werden angezeigt.
+- Arbeitszeit: mehrere Felder gleichzeitig auswählbar.
+- Alle gewählten Felder werden beim Start mit dem Auftrag verknüpft.
+- Auftragsverwaltung: im Bearbeiten-Dialog mehrere Felder auswählbar und speicherbar.
+- Neuer Patch: `featurefix14.js`.

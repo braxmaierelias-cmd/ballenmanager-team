@@ -77,3 +77,15 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 #completedOrders .order .completed-admin-actions button{
   display:inline-flex;
 }
+
+
+/* ===== FarmManager V14 – Live + Mehrfachfelder ===== */
+#liveMap,#liveMap14Inner{min-height:520px}
+.work-multi-field-wrap{margin-top:10px}
+#workFieldMulti,#fmOeFields14{max-height:300px;overflow:auto;padding-right:4px}
+#workFieldMulti .field-check,#fmOeFields14 .field-check{
+ display:flex;align-items:center;gap:10px;padding:10px 12px;margin:6px 0;
+ border:1px solid #dfe6dc;border-radius:12px;background:#fff
+}
+#workFieldMulti .field-check input,#fmOeFields14 .field-check input{width:20px;height:20px;flex:0 0 auto}
+#workFieldMulti .field-check span,#fmOeFields14 .field-check span{display:flex;flex-direction:column;gap:2px}
