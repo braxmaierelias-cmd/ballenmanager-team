@@ -1,22 +1,32 @@
-# FarmManager V11 – Arbeitszeit + Live-Karte
+# FarmManager V12 – Design 2 + Felder/Schläge
+
+Neue Menü-Reihenfolge:
+1. Dashboard
+2. Arbeitszeit
+3. Live Karte
+4. Verkauf
+5. Aufträge
+6. Kunden
+7. Kalender
+8. Maschinen
+9. Bestand
+10. Team
 
 Neu:
-- Eigene Arbeitszeiterfassung pro Mitarbeiter
-- Start / Pause / Fortsetzen / Stop & Speichern
-- Kunde + konkreter Auftrag
-- Maschine + Arbeitsart
-- Arbeitszeit wird dem Auftrag zugeordnet
-- Nur der angemeldete Mitarbeiter kann seinen eigenen Timer bedienen
-- Admin kann Zeitübersichten sehen, fremde Timer aber nicht starten/stoppen
-- Live-GPS-Karte für aktive Maschinen
-- Tracking startet beim Beginn einer Arbeitszeit
-- Geschwindigkeit, Fahrer, Maschine und Arbeitsart auf der Karte
-- Standortdaten werden nach Beenden des Einsatzes deaktiviert
-
-Datenbank:
-Die benötigten Supabase-Tabellen und Sicherheitsregeln wurden bereits eingerichtet.
+- Helles Design Nr. 2
+- Felder/Schläge per Karte als Polygon anlegen
+- Feld direkt einem Kunden zuordnen
+- Fläche in ha automatisch aus Polygon berechnen (kann manuell angepasst werden)
+- Kultur/Nutzung und Notiz speichern
+- Mehrere Felder bei Auftragserstellung auswählen
+- Felder werden am Auftrag gespeichert
+- Während eines laufenden Einsatzes Feld wechseln bzw. weiteres Kundenfeld auswählen
+- Arbeitszeit wird in Zeitabschnitten je Feld gespeichert
+- Pausen werden nicht als Feldzeit mitgerechnet
+- Feldzeiten werden am Auftrag angezeigt
+- Live-Karte zeigt zusätzlich gespeicherte Feldgrenzen
+- Bestehende Arbeitszeit- und GPS-Funktionen bleiben erhalten
 
 Wichtig:
 - app.js bleibt unverändert.
-- Für GPS muss der Mitarbeiter dem Browser Standortzugriff erlauben.
-- In einer Web-App ist dauerhaftes Hintergrundtracking auf iPhone/Android eingeschränkt.
+- Benötigte Supabase-Tabellen und Sicherheitsregeln wurden bereits eingerichtet.

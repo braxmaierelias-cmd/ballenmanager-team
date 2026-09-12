@@ -437,3 +437,343 @@ setTimeout(async()=>{
     if(s) fmRenderWorkTime();
   }
 },600);
+
+
+/* ===== FarmManager V12: Felder / Schläge ===== */
+let fields = [];
+let orderFields = [];
+let workFieldSegments = [];
+let fmFieldMap = null;
+let fmFieldDrawLayer = null;
+let fmFieldDisplayLayer = null;
+let fmPendingGeometry = null;
+let fmLiveFieldLayers = [];
+
+const fmV11LoadFeatures = fmLoadFeatures;
+fmLoadFeatures = async function(){
+  await fmV11LoadFeatures();
+  if(!token || !me) return;
+  try{
+    [fields, orderFields, workFieldSegments] = await Promise.all([
+      select('fields','select=*&order=name.asc'),
+      select('order_fields','select=*&order=created_at.asc'),
+      select('work_field_segments','select=*&order=started_at.asc')
+    ]);
+    fmPopulateFieldCustomer();
+    fmRenderOrderFieldChoices();
+    fmPopulateWorkFields();
+    fmRenderFieldTimeline();
+    renderOrders();
+    if(document.getElementById('p-kunden')?.classList.contains('active')) fmInitFieldMap();
+    if(document.getElementById('p-livekarte')?.classList.contains('active')) fmRenderLiveMap();
+  }catch(e){ console.warn('Felder laden:',e); }
+};
+
+function fmCustomerFields(customerId){
+  return fields.filter(f => +f.customer_id === +customerId);
+}
+function fmOrderFieldIds(orderId){
+  return orderFields.filter(x => +x.order_id === +orderId).map(x => +x.field_id);
+}
+function fmFieldName(id){
+  return fields.find(f => +f.id === +id)?.name || 'Feld';
+}
+function fmPopulateFieldCustomer(){
+  const el=$('fieldCustomer');
+  if(!el) return;
+  const val=el.value;
+  el.innerHTML='<option value="">Kunde wählen …</option>'+cust.map(c=>`<option value="${c.id}">${esc(c.name)}${c.company?' · '+esc(c.company):''}</option>`).join('');
+  if(val) el.value=val;
+  fmRenderCustomerFields();
+}
+function fmRenderCustomerFields(){
+  const customerId=+$('fieldCustomer')?.value||0;
+  if(!$('customerFieldsList')) return;
+  const list=fmCustomerFields(customerId);
+  $('customerFieldsList').innerHTML = customerId ? (list.map(f=>`
+    <button class="field-list-row" data-field-focus="${f.id}">
+      <span><b>${esc(f.name)}</b><small>${f.hectares?Number(f.hectares).toLocaleString('de-DE',{maximumFractionDigits:2})+' ha':''}${f.crop?' · '+esc(f.crop):''}</small></span>
+      <span class="field-row-actions"><i data-field-edit="${f.id}">Bearbeiten</i><i data-field-delete="${f.id}">Löschen</i></span>
+    </button>`).join('') || '<p class="muted">Für diesen Kunden sind noch keine Felder angelegt. Zeichne rechts eine Fläche ein.</p>') : '<p class="muted">Noch keinen Kunden gewählt.</p>';
+  document.querySelectorAll('[data-field-focus]').forEach(b=>b.onclick=e=>{
+    if(e.target.closest('[data-field-edit]')||e.target.closest('[data-field-delete]')) return;
+    fmFocusField(+b.dataset.fieldFocus);
+  });
+  document.querySelectorAll('[data-field-edit]').forEach(b=>b.onclick=e=>{e.stopPropagation();fmEditField(+b.dataset.fieldEdit)});
+  document.querySelectorAll('[data-field-delete]').forEach(b=>b.onclick=async e=>{
+    e.stopPropagation();
+    const id=+b.dataset.fieldDelete;
+    if(!confirm('Feld wirklich löschen?')) return;
+    try{await remove('fields','id=eq.'+id); await fmReloadFieldData();}catch(err){alert('Feld kann nicht gelöscht werden, solange es bereits in einem Auftrag oder einer Arbeitszeit verwendet wird.');}
+  });
+  fmDrawCustomerFields();
+}
+function fmInitFieldMap(){
+  if(!$('fieldMap') || typeof L==='undefined') return;
+  if(!fmFieldMap){
+    fmFieldMap=L.map('fieldMap').setView([49.5,8.4],9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(fmFieldMap);
+    fmFieldDrawLayer=new L.FeatureGroup().addTo(fmFieldMap);
+    fmFieldDisplayLayer=new L.FeatureGroup().addTo(fmFieldMap);
+    if(L.Control?.Draw){
+      const drawControl=new L.Control.Draw({
+        draw:{polyline:false,rectangle:false,circle:false,circlemarker:false,marker:false,polygon:{allowIntersection:false,showArea:true}},
+        edit:false
+      });
+      fmFieldMap.addControl(drawControl);
+      fmFieldMap.on(L.Draw.Event.CREATED,e=>{
+        if(!$('fieldCustomer').value){alert('Bitte zuerst einen Kunden auswählen.');return}
+        fmFieldDrawLayer.clearLayers();
+        fmFieldDrawLayer.addLayer(e.layer);
+        fmPendingGeometry=e.layer.toGeoJSON().geometry;
+        let ha=0;
+        try{ha=L.GeometryUtil.geodesicArea(e.layer.getLatLngs()[0])/10000}catch(_){}
+        $('fieldHectares').value=ha?ha.toFixed(2):'';
+        $('fieldEditId').value='';
+        $('fieldName').value='';
+        $('fieldCrop').value='';
+        $('fieldNotes').value='';
+        $('fieldEditor').hidden=false;
+      });
+    }
+  }
+  fmDrawCustomerFields();
+  setTimeout(()=>fmFieldMap.invalidateSize(),120);
+}
+function fmGeoLayer(f,opts={}){
+  try{return L.geoJSON({type:'Feature',geometry:f.geometry,properties:{}},{style:{weight:2,fillOpacity:.16,...opts}})}catch(e){return null}
+}
+function fmDrawCustomerFields(){
+  if(!fmFieldMap||!fmFieldDisplayLayer) return;
+  fmFieldDisplayLayer.clearLayers();
+  const customerId=+$('fieldCustomer')?.value||0;
+  const list=fmCustomerFields(customerId);
+  const bounds=[];
+  list.forEach(f=>{
+    const layer=fmGeoLayer(f);
+    if(!layer) return;
+    layer.bindTooltip(`${esc(f.name)}${f.hectares?' · '+Number(f.hectares).toFixed(2)+' ha':''}`);
+    layer.addTo(fmFieldDisplayLayer);
+    try{bounds.push(layer.getBounds())}catch(_){}
+  });
+  if(bounds.length){
+    let b=bounds[0];
+    for(let i=1;i<bounds.length;i++) b.extend(bounds[i]);
+    fmFieldMap.fitBounds(b,{padding:[20,20],maxZoom:16});
+  }
+}
+function fmFocusField(id){
+  const f=fields.find(x=>+x.id===+id); if(!f||!fmFieldMap) return;
+  const layer=fmGeoLayer(f,{weight:4,fillOpacity:.25}); if(!layer)return;
+  try{fmFieldMap.fitBounds(layer.getBounds(),{padding:[30,30],maxZoom:17})}catch(_){}
+}
+function fmEditField(id){
+  const f=fields.find(x=>+x.id===+id); if(!f)return;
+  $('fieldEditId').value=f.id;$('fieldName').value=f.name||'';$('fieldHectares').value=f.hectares||'';$('fieldCrop').value=f.crop||'';$('fieldNotes').value=f.notes||'';
+  fmPendingGeometry=f.geometry;
+  $('fieldEditor').hidden=false;
+  fmFocusField(id);
+}
+async function fmSaveField(){
+  const customer_id=+$('fieldCustomer').value||0;
+  const name=$('fieldName').value.trim();
+  const id=+$('fieldEditId').value||0;
+  if(!customer_id)return alert('Bitte Kunde auswählen.');
+  if(!name)return alert('Bitte Feldname eingeben.');
+  if(!fmPendingGeometry)return alert('Bitte Feld auf der Karte einzeichnen.');
+  const obj={customer_id,name,hectares:+$('fieldHectares').value||null,crop:$('fieldCrop').value.trim()||null,notes:$('fieldNotes').value.trim()||null,geometry:fmPendingGeometry,updated_at:new Date().toISOString()};
+  try{
+    if(id) await update('fields',obj,'id=eq.'+id);
+    else await insert('fields',{...obj,created_by:me.id},false);
+    fmCancelFieldEditor();
+    await fmReloadFieldData();
+  }catch(e){alert('Feld konnte nicht gespeichert werden: '+e.message)}
+}
+function fmCancelFieldEditor(){
+  $('fieldEditor').hidden=true;fmPendingGeometry=null;
+  if(fmFieldDrawLayer)fmFieldDrawLayer.clearLayers();
+}
+async function fmReloadFieldData(){
+  [fields,orderFields,workFieldSegments]=await Promise.all([
+    select('fields','select=*&order=name.asc'),
+    select('order_fields','select=*&order=created_at.asc'),
+    select('work_field_segments','select=*&order=started_at.asc')
+  ]);
+  fmRenderCustomerFields();fmRenderOrderFieldChoices();fmPopulateWorkFields();fmRenderWorkHistory();fmRenderFieldTimeline();renderOrders();
+}
+$('fieldCustomer')?.addEventListener('change',()=>{fmRenderCustomerFields();fmInitFieldMap()});
+$('saveField')?.addEventListener('click',fmSaveField);
+$('cancelField')?.addEventListener('click',fmCancelFieldEditor);
+document.querySelector('nav button[data-page="kunden"]')?.addEventListener('click',()=>setTimeout(()=>{fmPopulateFieldCustomer();fmInitFieldMap()},80));
+
+function fmSelectedOrderFieldIds(){
+  return [...document.querySelectorAll('#orderFieldChoices input[type="checkbox"]:checked')].map(x=>+x.value);
+}
+function fmRenderOrderFieldChoices(){
+  const box=$('orderFieldChoices');if(!box)return;
+  const customerId=+$('custSel')?.value||0;
+  const list=fmCustomerFields(customerId);
+  box.innerHTML=customerId?(list.map(f=>`<label class="field-check"><input type="checkbox" value="${f.id}"><span><b>${esc(f.name)}</b><small>${f.hectares?Number(f.hectares).toFixed(2)+' ha':''}${f.crop?' · '+esc(f.crop):''}</small></span></label>`).join('')||'<p class="muted">Dieser Kunde hat noch keine Felder.</p>'):'<p class="muted">Nach Kundenauswahl werden dessen Felder angezeigt.</p>';
+}
+$('custSel')?.addEventListener('change',fmRenderOrderFieldChoices);
+
+const fmOldSaveOrderClick=$('saveOrder')?.onclick;
+if(fmOldSaveOrderClick){
+  $('saveOrder').onclick=async function(ev){
+    const selected=fmSelectedOrderFieldIds();
+    const before=new Set(orders.map(o=>+o.id));
+    await fmOldSaveOrderClick.call(this,ev);
+    const created=orders.find(o=>!before.has(+o.id));
+    if(created&&selected.length){
+      try{
+        await req('order_fields',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(selected.map(field_id=>({order_id:created.id,field_id,created_by:me.id,added_during_work:false})))});
+        orderFields=await select('order_fields','select=*&order=created_at.asc')||[];
+        renderOrders();
+      }catch(e){console.warn('Felder zum Auftrag:',e)}
+    }
+  };
+}
+
+const fmV11OrderCard=orderCard;
+orderCard=function(o,done=false){
+  let html=fmV11OrderCard(o,done);
+  const ids=fmOrderFieldIds(o.id);
+  if(!ids.length)return html;
+  const fieldHtml=`<div class="order-fields"><b>Felder:</b> ${ids.map(id=>esc(fmFieldName(id))).join(' · ')}</div>`;
+  const segs=workFieldSegments.filter(s=>workSessions.some(ws=>+ws.id===+s.work_session_id&&+ws.order_id===+o.id));
+  const byField={};
+  segs.forEach(s=>{
+    const end=s.ended_at?new Date(s.ended_at).getTime():Date.now();
+    const sec=Math.max(0,Math.floor((end-new Date(s.started_at).getTime())/1000));
+    byField[s.field_id]=(byField[s.field_id]||0)+sec;
+  });
+  const timeHtml=Object.keys(byField).length?`<div class="order-field-times">${Object.entries(byField).map(([id,sec])=>`<span>${esc(fmFieldName(+id))}: <b>${fmDurationShort(sec)}</b></span>`).join('')}</div>`:'';
+  return html.replace(/<\/div>\s*$/,fieldHtml+timeHtml+'</div>');
+};
+
+function fmPopulateWorkFields(){
+  const el=$('workField');if(!el)return;
+  const customerId=+$('workCustomer')?.value||0, orderId=+$('workOrder')?.value||0;
+  const linked=new Set(fmOrderFieldIds(orderId));
+  const list=fmCustomerFields(customerId);
+  const current=el.value;
+  el.innerHTML='<option value="">Ohne Feld</option>'+list.map(f=>`<option value="${f.id}">${linked.has(+f.id)?'★ ':''}${esc(f.name)}${f.hectares?' · '+Number(f.hectares).toFixed(2)+' ha':''}</option>`).join('');
+  if(current&&list.some(f=>String(f.id)===String(current)))el.value=current;
+}
+$('workCustomer')?.addEventListener('change',()=>setTimeout(fmPopulateWorkFields,0));
+$('workOrder')?.addEventListener('change',fmPopulateWorkFields);
+
+function fmCurrentFieldId(sessionId){
+  const segs=workFieldSegments.filter(s=>+s.work_session_id===+sessionId).sort((a,b)=>new Date(a.started_at)-new Date(b.started_at));
+  return segs.length?+segs[segs.length-1].field_id:0;
+}
+function fmOpenFieldSegment(sessionId){
+  return workFieldSegments.find(s=>+s.work_session_id===+sessionId&&!s.ended_at)||null;
+}
+async function fmEnsureOrderField(orderId,fieldId,addedDuring=true){
+  if(!orderId||!fieldId||orderFields.some(x=>+x.order_id===+orderId&&+x.field_id===+fieldId))return;
+  try{
+    await req('order_fields',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({order_id:orderId,field_id:fieldId,created_by:me.id,added_during_work:addedDuring})});
+    orderFields.push({order_id:orderId,field_id:fieldId,created_by:me.id,added_during_work:addedDuring});
+  }catch(e){console.warn(e)}
+}
+async function fmStartFieldSegment(session,fieldId){
+  if(!session||!fieldId)return;
+  await fmEnsureOrderField(session.order_id,fieldId,true);
+  const rows=await insert('work_field_segments',{work_session_id:session.id,field_id:fieldId,started_at:new Date().toISOString(),created_by:me.id},true);
+  workFieldSegments.push(rows[0]);
+  fmRenderFieldTimeline();
+}
+async function fmCloseFieldSegment(sessionId){
+  const seg=fmOpenFieldSegment(sessionId);if(!seg)return;
+  const end=new Date().toISOString();
+  await update('work_field_segments',{ended_at:end},'id=eq.'+seg.id);
+  seg.ended_at=end;
+  fmRenderFieldTimeline();
+}
+async function fmSwitchWorkField(){
+  const s=fmMyActiveSession();if(!s)return;
+  if(s.status==='paused')return alert('Bitte zuerst die Pause beenden.');
+  const available=fmCustomerFields(s.customer_id);
+  if(!available.length)return alert('Für diesen Kunden sind noch keine Felder angelegt.');
+  const names=available.map((f,i)=>`${i+1}: ${f.name}`).join('\n');
+  const val=prompt(`Welches Feld soll jetzt bearbeitet werden?\n\n${names}\n\nNummer eingeben:`);
+  if(!val)return;
+  const f=available[+val-1];if(!f)return alert('Ungültige Auswahl.');
+  await fmCloseFieldSegment(s.id);
+  await fmStartFieldSegment(s,f.id);
+  $('workField').value=f.id;
+  fmRenderWorkTime();
+}
+$('workChangeField')?.addEventListener('click',fmSwitchWorkField);
+
+const fmV11StartWork=fmStartWork;
+fmStartWork=async function(){
+  const before=new Set(workSessions.map(s=>+s.id));
+  await fmV11StartWork();
+  const s=workSessions.find(x=>!before.has(+x.id)&&x.user_id===me.id);
+  const fieldId=+$('workField')?.value||0;
+  if(s&&fieldId){try{await fmStartFieldSegment(s,fieldId)}catch(e){console.warn(e)}}
+  fmRenderFieldTimeline();
+};
+const fmV11PauseWork=fmPauseWork;
+fmPauseWork=async function(){
+  const s=fmMyActiveSession();
+  if(s){try{await fmCloseFieldSegment(s.id)}catch(e){}}
+  await fmV11PauseWork();
+  fmRenderFieldTimeline();
+};
+const fmV11ResumeWork=fmResumeWork;
+fmResumeWork=async function(){
+  const s=fmMyActiveSession();
+  const lastField=s?fmCurrentFieldId(s.id):0;
+  await fmV11ResumeWork();
+  const now=fmMyActiveSession();
+  if(now&&lastField){try{await fmStartFieldSegment(now,lastField)}catch(e){}}
+  fmRenderFieldTimeline();
+};
+const fmV11StopWork=fmStopWork;
+fmStopWork=async function(){
+  const s=fmMyActiveSession();
+  if(s){try{await fmCloseFieldSegment(s.id)}catch(e){}}
+  await fmV11StopWork();
+  fmRenderFieldTimeline();
+};
+
+function fmRenderFieldTimeline(){
+  if(!$('workFieldTimeline'))return;
+  const s=fmMyActiveSession();
+  $('workFieldControl').hidden=!s;
+  if(!s){$('workFieldTimeline').innerHTML='';return}
+  const current=fmOpenFieldSegment(s.id)||workFieldSegments.filter(x=>+x.work_session_id===+s.id).sort((a,b)=>new Date(b.started_at)-new Date(a.started_at))[0];
+  $('workCurrentField').textContent=current?fmFieldName(current.field_id):'Ohne Feld';
+  const segs=workFieldSegments.filter(x=>+x.work_session_id===+s.id);
+  $('workFieldTimeline').innerHTML=segs.map(seg=>{
+    const end=seg.ended_at?new Date(seg.ended_at).getTime():Date.now();
+    const sec=Math.max(0,Math.floor((end-new Date(seg.started_at).getTime())/1000));
+    return `<span><b>${esc(fmFieldName(seg.field_id))}</b> ${fmDurationShort(sec)}</span>`;
+  }).join('');
+}
+
+const fmV11RenderWorkTime=fmRenderWorkTime;
+fmRenderWorkTime=function(){
+  fmV11RenderWorkTime();
+  fmPopulateWorkFields();
+  fmRenderFieldTimeline();
+};
+
+const fmV11RenderLiveMap=fmRenderLiveMap;
+fmRenderLiveMap=function(){
+  fmV11RenderLiveMap();
+  if(!fmMap||typeof L==='undefined')return;
+  fmLiveFieldLayers.forEach(l=>{try{fmMap.removeLayer(l)}catch(_){}});
+  fmLiveFieldLayers=[];
+  fields.forEach(f=>{
+    const layer=fmGeoLayer(f,{weight:1,fillOpacity:.05,dashArray:'5 5'});
+    if(layer){layer.bindTooltip(esc(f.name));layer.addTo(fmMap);fmLiveFieldLayers.push(layer)}
+  });
+};
+
+setInterval(()=>{
+  if(fmMyActiveSession()) fmRenderFieldTimeline();
+},30000);
