@@ -122,3 +122,10 @@ Wichtig: app.js bleibt unverändert.
 - Nach Auswahl des Kunden werden dessen Felder als Checkboxen angezeigt.
 - Alle ausgewählten Felder werden beim Speichern dauerhaft mit dem Auftrag verknüpft.
 - Neu: `orderfields14.js`.
+
+## V14.4 – Feldauswahl Fix
+- Felder bei „Auftrag erstellen“ werden jetzt direkt aus Supabase anhand des gewählten Kunden geladen.
+- Anzahl verfügbarer Felder wird angezeigt.
+- „Alle auswählen“ ergänzt.
+- Mehrfachauswahl wird nach Auftragserstellung robust mit dem neu angelegten Auftrag verknüpft.
+- Neu: `orderfieldsfix14.js`.

@@ -108,3 +108,7 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 }
 #orderFieldChoices .create-order-field-check input{width:20px;height:20px;flex:0 0 auto}
 #orderFieldChoices .create-order-field-check span{display:flex;flex-direction:column;gap:2px}
+
+/* FarmManager V14.4 */
+.field-select-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 8px}
+.field-select-head button{width:auto;margin:0}
