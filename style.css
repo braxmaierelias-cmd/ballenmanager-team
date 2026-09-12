@@ -99,3 +99,12 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 .machine-tabs button{width:auto;background:#eef3eb;color:#667266}
 .machine-tabs button.active{background:#5f8e49;color:#fff}
 #machineWidthWrap142[hidden]{display:none!important}
+
+/* FarmManager V14.3 */
+#orderFieldChoices{max-height:320px;overflow:auto;padding-right:4px}
+#orderFieldChoices .create-order-field-check{
+ display:flex;align-items:center;gap:10px;padding:10px 12px;margin:6px 0;
+ border:1px solid #dfe6dc;border-radius:12px;background:#fff
+}
+#orderFieldChoices .create-order-field-check input{width:20px;height:20px;flex:0 0 auto}
+#orderFieldChoices .create-order-field-check span{display:flex;flex-direction:column;gap:2px}

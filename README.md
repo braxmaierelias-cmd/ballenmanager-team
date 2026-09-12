@@ -116,3 +116,9 @@ Wichtig: app.js bleibt unverändert.
 - Auftragseditor: Maschine + Anbaugerät nachträglich bearbeitbar.
 - Supabase wurde um `machine_kind`, `width_m`, `implement_id` und Maschinenverknüpfungen für Aufträge erweitert.
 - Neu: `implements14.js`.
+
+## V14.3 – Felder bei Auftrag erstellen
+- Bei „Auftrag erstellen“ können jetzt mehrere Felder/Schläge gleichzeitig ausgewählt werden.
+- Nach Auswahl des Kunden werden dessen Felder als Checkboxen angezeigt.
+- Alle ausgewählten Felder werden beim Speichern dauerhaft mit dem Auftrag verknüpft.
+- Neu: `orderfields14.js`.
