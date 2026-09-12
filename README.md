@@ -69,3 +69,13 @@ Wichtig: app.js bleibt unverändert.
 - „Punkt zurück“ und „Abbrechen“ vorhanden.
 - Fläche wird weiterhin automatisch in ha berechnet.
 - Funktioniert ohne Leaflet-Draw-Plugin und ist damit robuster auf iPad/Safari.
+
+## V13.7 – Bedienungsupdate
+- Kunden können gelöscht werden, wenn keine Aufträge mehr verknüpft sind.
+- Eigene abgeschlossene Arbeitszeiten können gelöscht werden.
+- Maschinen: zuerst Übersicht, oben rechts „+ Neue Maschine“.
+- Bestand: Güter können gelöscht werden, solange sie nicht in aktiven Aufträgen genutzt werden.
+- Team: zuerst Mitglieder, oben rechts für Admins „+ Mitglied anlegen“.
+- Aktive Aufträge können vollständig bearbeitet werden.
+- `app.js` bleibt unverändert.
+- Neu hinzugekommen: `uiupdate.js`.

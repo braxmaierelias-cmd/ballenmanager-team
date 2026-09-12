@@ -34,3 +34,19 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 
 /* V13 */
 .fields-page-layout{display:grid;grid-template-columns:.72fr 1.55fr;gap:17px;align-items:start}.fields-column{max-height:700px;overflow:auto}.field-map-card{padding:18px}.field-search{width:190px}.map-provider{font-size:9px;color:#7c897f;background:#f3f7f2;border:1px solid var(--line);padding:6px 8px;border-radius:999px}.field-master-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid var(--line);cursor:pointer}.field-master-row:first-child{border-top:0}.field-master-row b,.field-master-row span,.field-master-row small,.field-master-row p{display:block}.field-master-row b{font-size:11px}.field-master-row span{font-size:9px;color:#68805e;margin-top:3px}.field-master-row small{font-size:8px;color:#879389;margin-top:3px}.field-master-row p{margin:5px 0 0;font-size:8px;color:#78857b}.field-master-actions{display:flex;flex-direction:column;gap:5px;min-width:92px}.field-master-actions button{margin:0}.field-editor-card{border-left:4px solid #79a161}.field-editor-hint{margin:10px 0;padding:9px;border-radius:9px;background:#f3f7f2;color:#718076;font-size:9px}.customer-field-summary{margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);font-size:9px;color:#6f7c72}.customer-field-summary b{margin-right:5px}.customer-field-summary span{display:inline-block;margin:2px 3px 2px 0;padding:4px 6px;border-radius:999px;background:#eef6ea;color:#557846}.customer-field-summary small{color:#8d978f}.order-editor-card{border-left:4px solid #7a9e63}.edit-completed-order{margin-top:8px}.work-edit-card{border-left:4px solid #719c59}.edit-work-row{margin-top:6px!important;padding:6px 8px!important;font-size:8px!important}.work-row-right{min-width:110px}@media(max-width:900px){.fields-page-layout{grid-template-columns:1fr}.field-search{width:100%}.fields-column{max-height:none}.field-master-actions{min-width:78px}}
+
+
+/* ===== FarmManager V13.7 Bedienungsupdate ===== */
+.customer-actions,.inventory-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.customer-actions button,.inventory-actions button{width:auto;margin:0}
+.danger{background:#f8e7e7!important;color:#a94f4f!important;border:1px solid #edcccc!important}
+.danger:hover{background:#f4dada!important}
+.delete-work-row{margin-top:6px!important}
+.edit-active-order{margin-top:8px}
+#machineFormCard[hidden],#newUserCard[hidden]{display:none!important}
+#newMachineTop,#newTeamTop{white-space:nowrap}
+.close-new-user{margin:0!important}
+@media(max-width:700px){
+  .customer-actions,.inventory-actions{width:100%}
+  .customer-actions button,.inventory-actions button{flex:1}
+}
