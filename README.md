@@ -129,3 +129,10 @@ Wichtig: app.js bleibt unverändert.
 - „Alle auswählen“ ergänzt.
 - Mehrfachauswahl wird nach Auftragserstellung robust mit dem neu angelegten Auftrag verknüpft.
 - Neu: `orderfieldsfix14.js`.
+
+## V14.5 – Speicherfix Auftrag
+- Auftragsspeichern wurde auf eine einzige atomische Supabase-Funktion umgestellt.
+- Auftrag, Auftragsposition, Maschine, Anbaugerät und alle ausgewählten Felder werden in einem Vorgang gespeichert.
+- Bei einem Fehler gibt es keinen halbfertigen Auftrag mehr.
+- Ein nachträglicher Ladefehler zeigt nicht mehr fälschlich „Auftrag konnte nicht gespeichert werden“.
+- Neu: `ordersave14.js`.
