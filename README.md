@@ -28,3 +28,11 @@ Google Maps:
 Für eine echte Google-Karte wird ein Google Maps Platform API-Key benötigt. Bis dieser hinterlegt ist, bleibt die bereits funktionsfähige Kartenansicht aktiv. Die Datenstruktur ist dafür vorbereitet.
 
 Wichtig: app.js bleibt unverändert.
+
+
+## V13.1 Fix
+- Kartenansicht auf iPad/Safari stabilisiert
+- Leaflet/Leaflet Draw auf jsDelivr umgestellt
+- Felder können jetzt auch ohne Kundenzuordnung eingezeichnet werden
+- „+ Neues Feld“ initialisiert die Karte zuverlässig
+- Kartengröße wird nach Navigation/Rotation neu berechnet
