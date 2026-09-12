@@ -61,3 +61,11 @@ Wichtig: app.js bleibt unverändert.
 - Ursache: `app.js` benutzt bereits den Namen `L` für Statustexte. Dadurch konnte Leaflet Draw sich vorher nicht korrekt an Leaflet anhängen.
 - Die Karte bleibt über `window.L` angesprochen.
 - Das Polygon-Zeichenwerkzeug sollte jetzt oben links neben Zoom erscheinen.
+
+## V13.6 – eigenes touch-taugliches Zeichenwerkzeug
+- Leaflet Draw vollständig entfernt, weil es mit der bestehenden globalen Variable `L` kollidiert.
+- Neues eigenes Zeichenwerkzeug direkt auf Basis von `window.L`.
+- „Feld einzeichnen“ → Eckpunkte antippen → „Fertig“.
+- „Punkt zurück“ und „Abbrechen“ vorhanden.
+- Fläche wird weiterhin automatisch in ha berechnet.
+- Funktioniert ohne Leaflet-Draw-Plugin und ist damit robuster auf iPad/Safari.
