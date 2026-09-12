@@ -89,3 +89,8 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 }
 #workFieldMulti .field-check input,#fmOeFields14 .field-check input{width:20px;height:20px;flex:0 0 auto}
 #workFieldMulti .field-check span,#fmOeFields14 .field-check span{display:flex;flex-direction:column;gap:2px}
+
+.worktype-manager{margin-bottom:18px}.unit-checks{display:flex;gap:10px;flex-wrap:wrap}
+.unit-checks label{display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #dfe6dc;border-radius:10px;background:#fff}
+.unit-checks input{width:18px;height:18px}.worktype-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #e7ece5}
+.worktype-row div{display:flex;flex-direction:column;gap:3px}.worktype-row small{color:#7b857c}

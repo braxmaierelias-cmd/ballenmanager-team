@@ -106,3 +106,4 @@ Wichtig: app.js bleibt unverändert.
 - Alle gewählten Felder werden beim Start mit dem Auftrag verknüpft.
 - Auftragsverwaltung: im Bearbeiten-Dialog mehrere Felder auswählbar und speicherbar.
 - Neuer Patch: `featurefix14.js`.
+\n\n## V14.1\n- Verkauf heißt jetzt Auftrag erstellen.\n- Oben rechts: + Arbeit / Maschine.\n- Neue teamweite Arbeiten/Kategorien können mit Name, Symbol und Einheiten angelegt werden.\n- Sie erscheinen auch in der Arbeitszeit-Auswahl.\n- Neu: worktypes14.js.\n
