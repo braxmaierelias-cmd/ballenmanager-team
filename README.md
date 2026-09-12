@@ -55,3 +55,9 @@ Wichtig: app.js bleibt unverändert.
 - Ursache gefunden: app.js verwendet bereits die Variable `L` für Status-Texte.
 - Leaflet wird deshalb ab jetzt explizit über `window.L` angesprochen.
 - Feldkarte, Polygon-Zeichnen und vorhandene Feldgrenzen verwenden den richtigen Karten-Namespace.
+
+## V13.5 – Polygon-Zeichenwerkzeug Fix
+- Leaflet und Leaflet Draw werden jetzt vor `app.js` geladen.
+- Ursache: `app.js` benutzt bereits den Namen `L` für Statustexte. Dadurch konnte Leaflet Draw sich vorher nicht korrekt an Leaflet anhängen.
+- Die Karte bleibt über `window.L` angesprochen.
+- Das Polygon-Zeichenwerkzeug sollte jetzt oben links neben Zoom erscheinen.
