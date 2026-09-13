@@ -289,3 +289,187 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 .invoice-status153{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf2ea}.status-bezahlt{background:#e6f4df;color:#4f7e40}.status-versendet{background:#eef2f7;color:#536b8a}.status-entwurf{background:#f4f1e9;color:#806f47}
 @media(max-width:1050px){.machine-fuel-grid153,.invoice-portal153{grid-template-columns:1fr}.invoice-list151{position:static}.invoice-dashboard153{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.machine-fuel-grid153,.invoice-dashboard153{grid-template-columns:1fr}.movement-row153{grid-template-columns:1fr 1fr}.invoice-item-head153{display:none}}
+
+
+/* =========================================================
+   FarmManager V15.4 – Lesbarkeit & einheitliches Design
+   ========================================================= */
+
+/* Grundlesbarkeit */
+body{font-size:14px;line-height:1.45}
+.page{max-width:1480px;margin:0 auto}
+.pagehead{margin-bottom:20px;align-items:center}
+.pagehead h2{font-size:30px;line-height:1.1;letter-spacing:-.02em}
+.section-kicker{font-size:10px;letter-spacing:.12em}
+.card{padding:22px;border-radius:16px}
+.card h3{font-size:18px;line-height:1.25}
+.muted{font-size:12px}
+label{font-size:12px;font-weight:700;margin-bottom:6px}
+input,select,textarea{font-size:14px;min-height:44px;border-radius:10px;padding:10px 12px}
+textarea{min-height:92px}
+button{min-height:42px;font-size:13px;font-weight:800;border-radius:10px;padding:10px 14px}
+button.compact{min-height:36px;font-size:12px;padding:8px 11px}
+.badge{font-size:10px;padding:6px 9px}
+.grid{gap:14px 16px}
+.sectionhead{align-items:center}
+.rowbuttons{gap:10px}
+
+/* Seitenmenü klarer */
+.sidebar nav button{font-size:14px}
+.sidebar nav button span{font-size:11px}
+.side-brand strong{font-size:17px}
+.side-brand small{font-size:9px}
+
+/* Dashboard */
+.kpis{gap:14px}
+.kpis>div{min-height:126px;padding:19px}
+.kpis small{font-size:10px}
+.kpis b{font-size:31px}
+.kpis em{font-size:10px}
+.quick-grid button b{font-size:13px}
+.quick-grid button small{font-size:10px}
+
+/* Auftrag/Kunden/Bestand/Team */
+.order h4,.customer h4,.teamcard h4,.machinecard h4{font-size:15px}
+.order p,.customer p,.teamcard p,.machinecard p{font-size:11px}
+.order,.customer,.profileentry,.stock,.teamcard{padding:16px 0}
+.customer-field-summary,.order-worktime{font-size:11px}
+.stock{gap:10px}
+
+/* Arbeitszeiten */
+.work-clock strong{font-size:44px}
+.work-clock small{font-size:10px}
+.work-state{font-size:10px}
+.work-details small{font-size:9px}
+.work-details b{font-size:12px}
+.work-row{padding:15px 0}
+.work-row b{font-size:13px}
+.work-row p{font-size:11px}
+.work-row-right strong{font-size:15px}
+.work-row-right span,.work-row-right em{font-size:10px}
+
+/* ===== Maschinenpark – deutlich größer und ruhiger ===== */
+#p-maschinen .pagehead h2{font-size:32px}
+#p-maschinen .machine-tabs{margin-bottom:18px}
+#p-maschinen .machine-tabs button{min-width:150px;font-size:13px}
+#p-maschinen .machinegrid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+#p-maschinen .machinecard{
+  border:1px solid #dce5d9;
+  border-radius:16px;
+  padding:20px;
+  min-height:235px;
+  box-shadow:0 7px 22px rgba(42,62,45,.055);
+  display:flex;
+  flex-direction:column;
+}
+#p-maschinen .machinecard h4{
+  font-size:20px;
+  line-height:1.2;
+  margin:0 0 7px;
+  letter-spacing:-.01em;
+}
+#p-maschinen .machinecard>p{
+  font-size:12px;
+  line-height:1.4;
+  min-height:18px;
+  margin:0 0 13px;
+}
+#p-maschinen .machinefacts{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:6px 0 16px;
+}
+#p-maschinen .machinefacts span{
+  min-height:68px;
+  border:1px solid #e4ebe1;
+  border-radius:11px;
+  padding:11px 12px;
+  font-size:10px;
+  line-height:1.35;
+  background:#f7faf6;
+}
+#p-maschinen .machinefacts span b{
+  display:block;
+  margin-top:5px;
+  color:#344338;
+  font-size:14px;
+  line-height:1.2;
+}
+#p-maschinen .machinecard button{
+  margin-top:auto;
+  align-self:flex-start;
+  min-width:125px;
+}
+#p-maschinen #machineFormCard{
+  max-width:none;
+}
+#p-maschinen #machineFormCard h3{font-size:20px}
+
+/* Livekarte */
+.live-machine-row{padding:14px 0}
+.live-machine-row b{font-size:13px}
+.live-machine-row small{font-size:10px}
+.live-machine-meta b{font-size:12px}
+.live-map-head149 h3{font-size:18px}
+
+/* Felder */
+.field-master-row{padding:15px 0}
+.field-master-row b{font-size:13px}
+.field-master-row span{font-size:11px}
+.field-master-row small,.field-master-row p{font-size:10px}
+.field-editor-hint{font-size:11px}
+
+/* Kalender */
+.calday{font-size:12px}
+.calendar-event146 b{font-size:13px}
+.calendar-event146 p{font-size:11px}
+
+/* Rechnungen */
+.invoice-dashboard153>div{padding:18px}
+.invoice-dashboard153 small{font-size:11px}
+.invoice-dashboard153 b{font-size:24px}
+.invoice-step153 b{font-size:14px}
+.invoice-step153 small{font-size:11px}
+.invoice-item-head153{font-size:11px}
+.invoice-row151 b{font-size:14px}
+.invoice-row151 p{font-size:11px}
+
+/* Management */
+.management-tabs152 button{font-size:13px;padding:10px 14px}
+.management-kpis152>div{padding:18px}
+.management-kpis152 small{font-size:11px}
+.management-kpis152 b{font-size:24px}
+.management-main152 b{font-size:14px}
+.management-main152 p{font-size:11px}
+.machine-fuel-card153 h3{font-size:17px}
+.fuel-stats153 small{font-size:10px}
+.fuel-stats153 b{font-size:13px}
+
+/* Tablets */
+@media(max-width:1100px){
+  #p-maschinen .machinegrid{grid-template-columns:1fr 1fr}
+  .pagehead h2{font-size:27px}
+}
+
+/* Mobile */
+@media(max-width:760px){
+  body{font-size:13px}
+  .card{padding:17px}
+  .pagehead h2,#p-maschinen .pagehead h2{font-size:25px}
+  #p-maschinen .machinegrid{grid-template-columns:1fr}
+  #p-maschinen .machinecard{min-height:0;padding:17px}
+  #p-maschinen .machinecard h4{font-size:18px}
+  #p-maschinen .machinefacts{grid-template-columns:1fr 1fr}
+  #p-maschinen .machinefacts span{min-height:62px}
+  input,select,textarea{font-size:16px} /* iOS: kein Auto-Zoom */
+}
+
+/* Sehr kleine Geräte */
+@media(max-width:480px){
+  #p-maschinen .machinefacts{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .management-kpis152,.invoice-dashboard153{grid-template-columns:1fr 1fr}
+}

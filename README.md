@@ -214,3 +214,12 @@ Wichtig: app.js bleibt unverändert.
 - Rechnungen orientieren sich jetzt an Aufträgen: Kunde + Auftrag auswählen, Auftragspositionen, Einheiten und Fahrtkosten übernehmen.
 - Rechnungsarchiv mit Status-Kennzahlen und Suche.
 - Neue Datenbanktabellen `machine_fuel_logs` und `diesel_movements`.
+
+## V15.4 – Design & Lesbarkeit
+- Gesamte Oberfläche typografisch vereinheitlicht.
+- Größere Schrift, Eingabefelder und Buttons für bessere Bedienung auf iPad/iPhone.
+- Einheitlichere Karten, Abstände und Überschriften.
+- Maschinenpark deutlich vergrößert: größere Maschinenkarten, größere Namen, besser lesbare Betriebsstunden/Wartungsdaten und nur zwei Karten pro Reihe auf großen Displays.
+- Arbeitszeiten, Aufträge, Kunden, Live-Karte, Kalender, Rechnungen und Management ebenfalls lesbarer abgestimmt.
+- Mobile Darstellung weiter optimiert.
+- Keine Funktionslogik verändert.
