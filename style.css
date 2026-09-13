@@ -223,3 +223,51 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
     min-height:480px!important;
   }
 }
+
+
+/* ===== FarmManager V15.1 Rechnungen ===== */
+.invoice-editor151{margin-bottom:18px}
+.invoice-items-head151{margin-top:22px}
+.invoice-item151{
+  display:grid;grid-template-columns:minmax(220px,2fr) 100px 120px 130px 130px 42px;
+  gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #e5ebe2
+}
+.invoice-item151 input,.invoice-item151 select{margin:0}
+.invoice-line-total151{text-align:right}
+.invoice-total151{margin:22px 0 10px auto;max-width:420px}
+.invoice-total151>div{display:flex;justify-content:space-between;padding:8px 4px}
+.invoice-grand151{border-top:2px solid #dce5d8;font-size:20px}
+.invoice-row151{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #e5ebe2}
+.invoice-row151 p{margin:4px 0;color:#667166}.invoice-row151 small{color:#7d887d;text-transform:capitalize}
+.invoice-actions151{display:flex;gap:7px;flex-wrap:wrap}
+@media(max-width:950px){
+  .invoice-item151{grid-template-columns:1fr 1fr}
+  .invoice-desc151{grid-column:1/-1}
+  .invoice-line-total151{text-align:left}
+}
+@media(max-width:650px){
+  .invoice-item151{grid-template-columns:1fr}
+  .invoice-row151{align-items:flex-start;flex-direction:column}
+  .invoice-actions151{width:100%}.invoice-actions151 button{flex:1}
+}
+
+
+/* ===== FarmManager V15.2 Management ===== */
+.management-tabs152{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+.management-tabs152 button{width:auto;background:#eef3eb;color:#637063}
+.management-tabs152 button.active{background:#5f8e49;color:#fff}
+.management-kpis152{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.management-kpis152>div{background:#fff;border:1px solid #e1e8df;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:5px}
+.management-kpis152 small{color:#7c887d}.management-kpis152 b{font-size:22px}
+.management-list152{display:flex;flex-direction:column;gap:10px}
+.management-row152{background:#fff;border:1px solid #e1e8df;border-radius:14px;padding:15px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.management-row152.warning152{border-color:#edc8a4;background:#fffaf4}
+.management-main152{flex:1;min-width:0}.management-main152 p{margin:5px 0 0;color:#738074}
+.management-actions152{display:flex;gap:7px;flex-wrap:wrap}
+.fuel-bar152{height:8px;background:#edf1eb;border-radius:999px;overflow:hidden;margin-top:9px}.fuel-bar152 i{display:block;height:100%;background:#6c9c54;border-radius:999px}
+.cost-result152{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0}
+.cost-result152>div{padding:12px;background:#f7faf5;border:1px solid #e1e8df;border-radius:12px;display:flex;flex-direction:column;gap:4px}
+.cost-result152 span{color:#768176;font-size:12px}.cost-result152 b,.cost-result152 strong{font-size:18px}
+.cost-price152{background:#eef6ea!important}.cost-price152 strong{color:#507b40;font-size:21px!important}
+@media(max-width:900px){.management-kpis152{grid-template-columns:1fr 1fr}.cost-result152{grid-template-columns:1fr 1fr}.management-row152{align-items:flex-start}}
+@media(max-width:600px){.management-kpis152,.cost-result152{grid-template-columns:1fr}.management-row152{flex-direction:column}.management-actions152{width:100%}.management-actions152 button{flex:1}}

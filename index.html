@@ -45,6 +45,8 @@
       <button data-page="maschinen">◫<span>Maschinen</span></button>
       <button data-page="bestand">▤<span>Bestand</span></button>
       <button data-page="team">♙<span>Team</span></button>
+      <button data-page="rechnungen">€<span>Rechnung erstellen</span></button>
+      <button data-page="management">⚙<span>Management</span></button>
     </nav>
   </aside>
 
@@ -117,6 +119,55 @@
       <label>Felder / Schläge für diesen Auftrag</label>
       <div id="orderFieldChoices" class="field-choice-list"><p class="muted">Nach Kundenauswahl werden dessen Felder angezeigt.</p></div>
     </div><div class="full"><label>Zuständiger Mitarbeiter</label><select id="assignedTo"></select></div><div id="productWrap"><label>Produkt</label><select id="product"></select></div><div id="mulchWrap" hidden><label>Mulchart</label><select id="mulchType"><option>Mulchen</option><option>Auslegemulchen</option><option>Seitenmulcher</option></select></div><div><label>Status</label><select id="status"><option value="reserviert">Offen / Reserviert</option><option value="bestaetigt">Bestätigt</option><option value="bereit">In Bearbeitung</option><option value="lieferung_geplant">Lieferung geplant</option><option value="geliefert">Geliefert</option><option value="abgeholt">Abgeholt</option></select></div><div><label>Berechnung</label><select id="unit"><option value="stueck">Stück</option></select></div><div><label id="amountLabel">Anzahl</label><input id="amount" type="number" min="0" step="0.01" value="1"></div><div><label id="priceLabel">Preis pro Stück (€)</label><input id="unitPrice" type="number" min="0" step="0.01" value="0"></div><div><label>Lieferart</label><select id="delivery"><option>Abholung</option><option>Lieferung</option><option>Vor Ort</option></select></div><div><label>Termin</label><input id="date" type="date"></div><div><label>Fahrtstrecke einfach (km)</label><input id="travelKm" type="number" min="0" step="0.1" value="0"></div><div><label>Fahrt-Kilometerpreis (€)</label><input id="travelPrice" type="number" min="0" step="0.01" value="0"></div><div class="full"><label class="checkrow"><input id="roundtrip" type="checkbox" checked class="check"> Hin- und Rückfahrt berechnen</label></div><div class="full"><label>Notiz</label><textarea id="notes"></textarea></div></div><div class="result"><span>Gesamtpreis</span><strong id="total">0,00 €</strong></div><button id="saveOrder">Auftrag / Reservierung speichern</button></div>
+  </section>
+
+
+  <section id="p-rechnungen" class="page">
+    <div class="pagehead">
+      <div><span class="section-kicker">ABRECHNUNG</span><h2>Rechnung erstellen</h2></div>
+      <button id="newInvoice151" class="compact">+ Neue Rechnung</button>
+    </div>
+
+    <div id="invoiceEditor151" class="card invoice-editor151">
+      <div class="sectionhead">
+        <div><span class="section-kicker">RECHNUNGSDATEN</span><h3 id="invoiceEditorTitle151">Neue Rechnung</h3></div>
+        <button id="closeInvoice151" class="secondary compact" hidden>Schließen</button>
+      </div>
+      <input type="hidden" id="invoiceId151">
+      <div class="grid">
+        <div><label>Rechnungsnummer</label><input id="invoiceNumber151" readonly></div>
+        <div><label>Status</label><select id="invoiceStatus151"><option value="entwurf">Entwurf</option><option value="versendet">Versendet</option><option value="bezahlt">Bezahlt</option></select></div>
+        <div class="full"><label>Kunde *</label><select id="invoiceCustomer151"></select></div>
+        <div class="full"><label>Auftrag übernehmen (optional)</label><select id="invoiceOrder151"></select></div>
+        <div><label>Rechnungsdatum</label><input id="invoiceDate151" type="date"></div>
+        <div><label>Fällig am</label><input id="invoiceDue151" type="date"></div>
+        <div><label>MwSt.</label><select id="invoiceVat151"><option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option></select></div>
+        <div class="full"><label>Notiz / Zahlungsinformation</label><textarea id="invoiceNotes151" placeholder="z. B. Zahlungsziel, Bankverbindung, Hinweis nach § 19 UStG"></textarea></div>
+      </div>
+
+      <div class="sectionhead invoice-items-head151">
+        <h3>Positionen</h3>
+        <button id="addInvoiceItem151" class="secondary compact">+ Position</button>
+      </div>
+      <div id="invoiceItems151"></div>
+
+      <div class="invoice-total151">
+        <div><span>Netto</span><b id="invoiceNet151">0,00 €</b></div>
+        <div><span>MwSt.</span><b id="invoiceVatAmount151">0,00 €</b></div>
+        <div class="invoice-grand151"><span>Gesamt</span><strong id="invoiceGross151">0,00 €</strong></div>
+      </div>
+
+      <div class="rowbuttons">
+        <button id="saveInvoice151">Rechnung speichern</button>
+        <button id="printInvoice151" class="secondary">Drucken / PDF</button>
+        <button id="deleteInvoice151" class="danger" hidden>Rechnung löschen</button>
+      </div>
+    </div>
+
+    <div class="card invoice-list151">
+      <div class="sectionhead"><div><span class="section-kicker">RECHNUNGEN</span><h3>Gespeicherte Rechnungen</h3></div></div>
+      <div id="invoiceList151"><p class="muted">Noch keine Rechnungen.</p></div>
+    </div>
   </section>
 
   <section id="p-kunden" class="page">
@@ -286,10 +337,119 @@
     </div>
   </section>
 
+
+  <section id="p-management" class="page">
+    <div class="pagehead">
+      <div><span class="section-kicker">BETRIEBSMANAGEMENT</span><h2>Management</h2></div>
+    </div>
+
+    <div class="management-tabs152">
+      <button class="active" data-mgmt-tab152="diesel">⛽ Dieselreserve</button>
+      <button data-mgmt-tab152="parts">🔧 Ersatzteile</button>
+      <button data-mgmt-tab152="costs">€ Kosten kalkulieren</button>
+    </div>
+
+    <div id="mgmtDiesel152" class="mgmt-panel152">
+      <div class="sectionhead">
+        <div><span class="section-kicker">DIESELVORRAT</span><h3>Dieselreserve</h3></div>
+        <button id="newDiesel152" class="compact">+ Dieselbestand</button>
+      </div>
+      <div id="dieselSummary152" class="management-kpis152"></div>
+
+      <div id="dieselForm152" class="card" hidden>
+        <div class="sectionhead"><h3 id="dieselFormTitle152">Dieselreserve anlegen</h3><button id="closeDiesel152" class="secondary compact">Schließen</button></div>
+        <input type="hidden" id="dieselId152">
+        <div class="grid">
+          <div><label>Bezeichnung *</label><input id="dieselName152" placeholder="z. B. Hoftank"></div>
+          <div><label>Tankkapazität (l)</label><input id="dieselCapacity152" type="number" min="0" step="1"></div>
+          <div><label>Aktueller Bestand (l)</label><input id="dieselCurrent152" type="number" min="0" step="1"></div>
+          <div><label>Mindestbestand (l)</label><input id="dieselMin152" type="number" min="0" step="1"></div>
+          <div><label>Dieselpreis €/l</label><input id="dieselPrice152" type="number" min="0" step="0.001"></div>
+          <div class="full"><label>Notiz</label><textarea id="dieselNotes152"></textarea></div>
+        </div>
+        <button id="saveDiesel152">Speichern</button>
+      </div>
+
+      <div id="dieselList152" class="management-list152"></div>
+    </div>
+
+    <div id="mgmtParts152" class="mgmt-panel152" hidden>
+      <div class="sectionhead">
+        <div><span class="section-kicker">LAGER</span><h3>Ersatzteile verwalten</h3></div>
+        <button id="newPart152" class="compact">+ Ersatzteil</button>
+      </div>
+
+      <div id="partForm152" class="card" hidden>
+        <div class="sectionhead"><h3 id="partFormTitle152">Ersatzteil anlegen</h3><button id="closePart152" class="secondary compact">Schließen</button></div>
+        <input type="hidden" id="partId152">
+        <div class="grid">
+          <div><label>Bezeichnung *</label><input id="partName152"></div>
+          <div><label>Teilenummer</label><input id="partNumber152"></div>
+          <div><label>Kategorie</label><input id="partCategory152" placeholder="z. B. Filter, Hydraulik"></div>
+          <div><label>Menge</label><input id="partQty152" type="number" min="0" step="0.01"></div>
+          <div><label>Mindestmenge</label><input id="partMin152" type="number" min="0" step="0.01"></div>
+          <div><label>Einheit</label><input id="partUnit152" value="Stück"></div>
+          <div><label>Kosten pro Einheit (€)</label><input id="partCost152" type="number" min="0" step="0.01"></div>
+          <div><label>Lagerort</label><input id="partLocation152"></div>
+          <div class="full"><label>Notiz</label><textarea id="partNotes152"></textarea></div>
+        </div>
+        <button id="savePart152">Speichern</button>
+      </div>
+
+      <div id="partsSummary152" class="management-kpis152"></div>
+      <div id="partsList152" class="management-list152"></div>
+    </div>
+
+    <div id="mgmtCosts152" class="mgmt-panel152" hidden>
+      <div class="sectionhead">
+        <div><span class="section-kicker">KALKULATION</span><h3>Kosten kalkulieren</h3></div>
+        <button id="newCostCalc152" class="compact">+ Neue Kalkulation</button>
+      </div>
+
+      <div class="card cost-calc-card152">
+        <input type="hidden" id="costId152">
+        <div class="grid">
+          <div><label>Bezeichnung *</label><input id="costName152" placeholder="z. B. Mulchen 1 ha"></div>
+          <div><label>Kategorie</label><input id="costCategory152" placeholder="z. B. Mulchen"></div>
+          <div><label>Maschine</label><select id="costMachine152"></select></div>
+          <div><label>Einsatzdauer (h)</label><input id="costHours152" type="number" min="0" step="0.1" value="1"></div>
+          <div><label>Dieselverbrauch (l/h)</label><input id="costDieselUse152" type="number" min="0" step="0.1" value="0"></div>
+          <div><label>Dieselpreis (€/l)</label><input id="costDieselPrice152" type="number" min="0" step="0.001" value="0"></div>
+          <div><label>Lohnkosten (€/h)</label><input id="costLabor152" type="number" min="0" step="0.01" value="0"></div>
+          <div><label>Maschinenkosten (€/h)</label><input id="costMachineRate152" type="number" min="0" step="0.01" value="0"></div>
+          <div><label>Sonstige Kosten (€)</label><input id="costOther152" type="number" min="0" step="0.01" value="0"></div>
+          <div><label>Gewinnaufschlag (%)</label><input id="costMarkup152" type="number" min="0" step="0.1" value="0"></div>
+          <div class="full"><label>Notiz</label><textarea id="costNotes152"></textarea></div>
+        </div>
+
+        <div class="cost-result152">
+          <div><span>Dieselkosten</span><b id="calcDiesel152">0,00 €</b></div>
+          <div><span>Lohnkosten</span><b id="calcLabor152">0,00 €</b></div>
+          <div><span>Maschinenkosten</span><b id="calcMachine152">0,00 €</b></div>
+          <div><span>Gesamtkosten</span><b id="calcBase152">0,00 €</b></div>
+          <div class="cost-price152"><span>Empfohlener Preis</span><strong id="calcPrice152">0,00 €</strong></div>
+        </div>
+
+        <div class="rowbuttons">
+          <button id="saveCostCalc152">Kalkulation speichern</button>
+          <button id="resetCostCalc152" class="secondary">Zurücksetzen</button>
+          <button id="deleteCostCalc152" class="danger" hidden>Löschen</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Gespeicherte Kalkulationen</h3>
+        <div id="costList152"></div>
+      </div>
+    </div>
+  </section>
+
 </div>
 </main>
 
 <footer>FarmManager · Gemeinsame Team-Datenbank</footer>
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js?v=7.1"></script><script src="features.js?v=13.0"></script><script src="fieldfix5.js?v=13.6"></script><script src="uiupdate.js?v=13.7"></script><script src="orderupdate.js?v=13.8"></script><script src="orderfix.js?v=13.9"></script><script src="featurefix14.js?v=14.0"></script><script src="worktypes14.js?v=14.1"></script><script src="implements14.js?v=14.2"></script><script src="orderfields14.js?v=14.3"></script><script src="orderfieldsfix14.js?v=14.4"></script><script src="ordersave14.js?v=14.5"></script><script src="operations14.js?v=14.6"></script><script src="routes14.js?v=15.0"></script><script src="profilecolors14.js?v=14.8"></script>
+<script src="invoices15.js?v=15.1"></script>
+<script src="management15.js?v=15.2"></script>
 </body>
 </html>

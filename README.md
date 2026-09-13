@@ -179,3 +179,28 @@ Wichtig: app.js bleibt unverändert.
 - Klick auf „Auf Karte“ lädt die GPS-Punkte der abgeschlossenen Fahrt und zeichnet die vollständige Strecke auf der großen Karte.
 - Start und Ziel werden markiert; die Route übernimmt die Mitarbeiterfarbe.
 - CSS und Routen-Script werden mit neuer Versionsnummer geladen, damit Safari nicht die alte Ansicht aus dem Cache nimmt.
+
+## V15.1 – Rechnungen
+- Neue Hauptkategorie „Rechnung erstellen“.
+- Rechnungsnummer wird automatisch vergeben.
+- Kunde und optional vorhandener Auftrag auswählbar.
+- Auftragspositionen können automatisch übernommen werden.
+- Beliebig viele Rechnungspositionen.
+- Menge, Einheit und Einzelpreis frei bearbeitbar.
+- MwSt. 19 %, 7 % oder 0 %.
+- Rechnungsdatum, Fälligkeit, Status und Notiz.
+- Rechnungen speichern, bearbeiten und löschen.
+- Druck-/PDF-Ansicht über den Browser.
+- Supabase-Tabellen `invoices` und `invoice_items` plus automatische Rechnungsnummer.
+- Neu: `invoices15.js`.
+
+## V15.2 – Management
+- „Rechnung erstellen“ wurde im Seitenmenü ganz nach unten verschoben.
+- Direkt darunter neue Hauptkategorie „Management“.
+- Register „Dieselreserve“ mit Tankkapazität, aktuellem Bestand, Mindestbestand, Preis pro Liter und Warenwert.
+- Register „Ersatzteile“ mit Teilenummer, Kategorie, Menge, Mindestmenge, Einheit, Einzelkosten, Lagerort und Notizen.
+- Register „Kosten kalkulieren“ für Einsatzdauer, Dieselverbrauch, Dieselpreis, Lohnkosten, Maschinenkosten, sonstige Kosten und Gewinnaufschlag.
+- Automatische Anzeige von Gesamtkosten und empfohlenem Verkaufspreis.
+- Kalkulationen können gespeichert und später wieder geöffnet werden.
+- Supabase-Tabellen: `diesel_reserves`, `spare_parts`, `cost_calculations`.
+- Neu: `management15.js`.
