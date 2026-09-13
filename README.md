@@ -149,3 +149,26 @@ Wichtig: app.js bleibt unverändert.
 - Team-Termine stehen im unteren Kalender für alle sichtbar.
 - Supabase wurde um Kalender-Sichtbarkeit, Enddatum sowie Mehrfach-Anbaugeräte-Verknüpfungen erweitert.
 - Neu: `operations14.js`.
+
+## V14.7 – Fahrtaufzeichnung
+- Fahrten können unabhängig von der Arbeitszeit gestartet und beendet werden.
+- Bei Start einer Arbeitszeit beginnt automatisch eine Fahrtaufzeichnung, falls keine andere Fahrt läuft.
+- Bei Ende der dazugehörigen Arbeitszeit wird die automatisch gestartete Fahrt beendet und gespeichert.
+- GPS-Punkte, komplette Route, Distanz, Dauer, Maschine, Auftrag und Notizen werden gespeichert.
+- Laufende Strecke wird auf der Live-Karte als Linie dargestellt.
+- Gespeicherte Fahrten können später wieder auf der Karte geöffnet oder gelöscht werden.
+- Laufende Fahrt wird nach Neuladen erkannt und die GPS-Aufzeichnung wird wieder aufgenommen.
+- Hinweis: iOS/Safari kann GPS im Hintergrund einschränken; zuverlässig ist die Aufzeichnung bei aktiver Web-App.
+- Supabase: neue Tabellen `route_tracks` und `route_track_points`.
+- Neu: `routes14.js`.
+
+## V14.8 – Mitarbeiterfarben
+- Jeder Mitarbeiter hat jetzt eine eigene, dauerhaft gespeicherte Farbe.
+- Die Farbe kann direkt im Mitarbeiterprofil gewählt werden.
+- Es gibt Farbauswahl per Farbpicker und eine Schnellpalette.
+- Die Mitarbeiterfarbe wird in der Teamübersicht angezeigt.
+- Arbeitszeiteinträge werden mit der Mitarbeiterfarbe markiert.
+- Live-Tracking-Punkte verwenden die Farbe des jeweiligen Mitarbeiters.
+- Gespeicherte/aktive Fahrtrouten werden in der Farbe des Mitarbeiters dargestellt.
+- Supabase: neues Feld `profiles.color`.
+- Neu: `profilecolors14.js`.

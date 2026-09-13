@@ -122,3 +122,24 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 .calendar-section146{margin:0 0 28px}.calendar-event146{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #e6ebe4}
 .calendar-event146 p{margin:4px 0 0;color:#788178}
 @media(max-width:700px){.multi-impl146{grid-template-columns:1fr}.calendar-event146{align-items:flex-start}}
+
+/* ===== FarmManager V14.7 Fahrtaufzeichnung ===== */
+.route-tracker147{margin-bottom:18px}
+.route-state147{padding:7px 10px;border-radius:999px;background:#eef3eb;color:#56754a;font-size:12px;font-weight:700}
+.route-live-stats147{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.route-live-stats147 span{padding:12px;border:1px solid #e0e7dd;border-radius:12px;background:#fafcf9;display:flex;flex-direction:column;gap:4px}
+.route-live-stats147 small{color:#788178}.route-live-stats147 b{font-size:19px}
+.route-row147{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #e6ebe4}
+.route-row147 p{margin:4px 0;color:#6f786f}.route-row147 small{color:#7b847b}
+.route-actions147{display:flex;gap:7px;flex-wrap:wrap}
+#routeMap147Inner{min-height:520px}
+@media(max-width:700px){.route-live-stats147{grid-template-columns:1fr}.route-row147{align-items:flex-start;flex-direction:column}}
+
+/* ===== FarmManager V14.8 Mitarbeiterfarben ===== */
+.employee-color-row148{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#tpEditColor148{width:58px;height:42px;padding:3px;border-radius:10px;cursor:pointer}
+.employee-color-palette148{display:flex;gap:7px;flex-wrap:wrap;max-width:440px}
+.color-dot148{width:30px!important;height:30px!important;min-width:30px;padding:0!important;border-radius:50%!important;border:3px solid #fff!important;box-shadow:0 0 0 1px #cfd8cc}
+.employee-color-dot148{width:14px;height:14px;border-radius:50%;display:inline-block;flex:0 0 auto;margin-right:8px}
+#tpColorValue148{font-size:12px;color:#6f786f;font-weight:700}
+.employee-color-wrap148{margin-top:4px}
