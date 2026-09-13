@@ -1,171 +1,176 @@
 
-/* FarmManager V15.2 – Management */
+/* FarmManager V15.3 – Management: Diesel + Ersatzteile + Kosten */
 (function(){
 const E=id=>document.getElementById(id);
-let diesel152=[],parts152=[],costs152=[];
+let diesel=[],parts=[],costs=[],fuelLogs=[],movements=[];
 const money=v=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(+v||0);
-const num=(id)=>+(E(id)?.value||0);
+const n=id=>+(E(id)?.value||0);
+const machinePark=()=> (machines||[]).filter(m=>(m.machine_kind||'maschinenpark')!=='anbaugeraet'&&m.active!==false);
 
-function setupTabs152(){
-  document.querySelectorAll('[data-mgmt-tab152]').forEach(b=>b.onclick=()=>{
-    document.querySelectorAll('[data-mgmt-tab152]').forEach(x=>x.classList.toggle('active',x===b));
-    ['diesel','parts','costs'].forEach(k=>{
-      const map={diesel:'mgmtDiesel152',parts:'mgmtParts152',costs:'mgmtCosts152'};
-      E(map[k]).hidden=b.dataset.mgmtTab152!==k;
-    });
-  });
+function setupTabs(){
+ document.querySelectorAll('[data-mgmt-tab152]').forEach(b=>b.onclick=()=>{
+   document.querySelectorAll('[data-mgmt-tab152]').forEach(x=>x.classList.toggle('active',x===b));
+   E('mgmtDiesel152').hidden=b.dataset.mgmtTab152!=='diesel';
+   E('mgmtParts152').hidden=b.dataset.mgmtTab152!=='parts';
+   E('mgmtCosts152').hidden=b.dataset.mgmtTab152!=='costs';
+ });
 }
-
-async function loadManagement152(){
-  if(!token)return;
-  try{
-    [diesel152,parts152,costs152]=await Promise.all([
-      select('diesel_reserves','select=*&order=name.asc'),
-      select('spare_parts','select=*&order=name.asc'),
-      select('cost_calculations','select=*&order=updated_at.desc')
-    ]);
-    renderDiesel152();renderParts152();renderCosts152();populateCostMachines152();
-  }catch(e){console.warn('Management laden:',e)}
+function ensureDieselAdvanced(){
+ const panel=E('mgmtDiesel152'); if(!panel||E('fuelMachineCard153'))return;
+ const summary=E('dieselSummary152');
+ const html=document.createElement('div');
+ html.innerHTML=`
+ <div class="diesel-subtabs153">
+   <button class="active" data-diesel-tab153="machines">Traktor-Verbrauch</button>
+   <button data-diesel-tab153="reserve">Eigene Dieselreserve</button>
+ </div>
+ <div id="dieselMachines153">
+   <div class="card" id="fuelMachineCard153">
+    <div class="sectionhead"><div><span class="section-kicker">TANKUNGEN</span><h3>Tankung für Traktor / Maschine eintragen</h3></div></div>
+    <div class="grid">
+      <div><label>Maschine *</label><select id="fuelMachine153"></select></div>
+      <div><label>Datum</label><input id="fuelDate153" type="date"></div>
+      <div><label>Getankte Liter *</label><input id="fuelLiters153" type="number" min="0" step="0.1"></div>
+      <div><label>Betriebsstunden aktuell</label><input id="fuelHours153" type="number" min="0" step="0.1"></div>
+      <div><label>Preis €/l</label><input id="fuelPrice153" type="number" min="0" step="0.001"></div>
+      <div><label>Entnahme aus eigenem Tank</label><select id="fuelReserve153"></select></div>
+      <div class="full"><label>Notiz</label><input id="fuelNotes153"></div>
+    </div>
+    <button id="saveFuel153">Tankung speichern</button>
+   </div>
+   <div id="machineFuelOverview153"></div>
+  </div>
+  <div id="dieselReserve153" hidden>
+    <div class="card">
+      <div class="sectionhead"><div><span class="section-kicker">BESTANDSKONTROLLE</span><h3>Eigene Dieselreserve</h3></div></div>
+      <div class="grid">
+        <div><label>Tank</label><select id="moveReserve153"></select></div>
+        <div><label>Bewegung</label><select id="moveType153"><option value="zugang">Zugang / Lieferung</option><option value="entnahme">Entnahme</option><option value="korrektur">Bestand korrigieren</option></select></div>
+        <div><label>Liter</label><input id="moveLiters153" type="number" min="0" step="0.1"></div>
+        <div><label>Preis €/l</label><input id="movePrice153" type="number" min="0" step="0.001"></div>
+        <div><label>Datum</label><input id="moveDate153" type="date"></div>
+        <div class="full"><label>Notiz</label><input id="moveNotes153"></div>
+      </div>
+      <button id="saveMove153">Dieselbewegung buchen</button>
+    </div>
+    <div id="dieselMovementList153" class="card"></div>
+  </div>`;
+ summary.after(html);
+ document.querySelectorAll('[data-diesel-tab153]').forEach(b=>b.onclick=()=>{
+   document.querySelectorAll('[data-diesel-tab153]').forEach(x=>x.classList.toggle('active',x===b));
+   E('dieselMachines153').hidden=b.dataset.dieselTab153!=='machines';
+   E('dieselReserve153').hidden=b.dataset.dieselTab153!=='reserve';
+ });
+ E('fuelDate153').value=new Date().toISOString().slice(0,10);
+ E('moveDate153').value=new Date().toISOString().slice(0,10);
+ E('saveFuel153').onclick=saveFuel;
+ E('saveMove153').onclick=saveMovement;
 }
-
-/* DIESEL */
-function resetDiesel152(){
-  E('dieselId152').value='';E('dieselName152').value='';E('dieselCapacity152').value='';
-  E('dieselCurrent152').value='';E('dieselMin152').value='';E('dieselPrice152').value='';
-  E('dieselNotes152').value='';E('dieselFormTitle152').textContent='Dieselreserve anlegen';E('dieselForm152').hidden=false;
+function populateFuelSelectors(){
+ ensureDieselAdvanced();
+ const m=E('fuelMachine153'),r=E('fuelReserve153'),mr=E('moveReserve153'); if(!m||!r||!mr)return;
+ m.innerHTML='<option value="">Maschine wählen …</option>'+machinePark().map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+ const opts='<option value="">Kein eigener Tank</option>'+diesel.map(x=>`<option value="${x.id}">${esc(x.name)} · ${(+x.current_l||0).toLocaleString('de-DE')} l</option>`).join('');
+ r.innerHTML=opts; mr.innerHTML='<option value="">Tank wählen …</option>'+diesel.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
 }
-async function saveDiesel152(){
-  const name=E('dieselName152').value.trim();if(!name)return alert('Bitte Bezeichnung eingeben.');
-  const obj={name,capacity_l:num('dieselCapacity152'),current_l:num('dieselCurrent152'),min_l:num('dieselMin152'),
-    price_per_l:num('dieselPrice152')||null,notes:E('dieselNotes152').value.trim()||null,updated_at:new Date().toISOString()};
-  const id=+E('dieselId152').value||0;
-  try{
-    if(id)await update('diesel_reserves',obj,'id=eq.'+id);
-    else await insert('diesel_reserves',{...obj,created_by:me.id},false);
-    E('dieselForm152').hidden=true;await loadManagement152();
-  }catch(e){alert('Dieselbestand konnte nicht gespeichert werden: '+e.message)}
+async function saveFuel(){
+ const machine_id=+E('fuelMachine153').value||0, liters=n('fuelLiters153'); if(!machine_id||liters<=0)return alert('Bitte Maschine und Liter eingeben.');
+ const reserve_id=+E('fuelReserve153').value||null;
+ try{
+   await insert('machine_fuel_logs',{
+     machine_id,log_date:E('fuelDate153').value||new Date().toISOString().slice(0,10),
+     liters,operating_hours:n('fuelHours153')||null,price_per_l:n('fuelPrice153')||null,
+     source_tank_id:reserve_id,notes:E('fuelNotes153').value.trim()||null,created_by:me.id
+   },false);
+   if(reserve_id){
+     const d=diesel.find(x=>+x.id===reserve_id);
+     if(d){
+       const newQty=Math.max(0,(+d.current_l||0)-liters);
+       await update('diesel_reserves',{current_l:newQty,updated_at:new Date().toISOString()},'id=eq.'+reserve_id);
+       await insert('diesel_movements',{reserve_id,movement_type:'entnahme',liters,movement_date:E('fuelDate153').value||new Date().toISOString().slice(0,10),machine_id,price_per_l:n('fuelPrice153')||null,notes:'Tankung '+(machines.find(x=>+x.id===machine_id)?.name||''),created_by:me.id},false);
+     }
+   }
+   E('fuelLiters153').value='';E('fuelHours153').value='';E('fuelNotes153').value='';
+   await loadManagement();
+ }catch(e){alert('Tankung konnte nicht gespeichert werden: '+e.message)}
 }
-function editDiesel152(id){
-  const d=diesel152.find(x=>+x.id===+id);if(!d)return;
-  E('dieselId152').value=d.id;E('dieselName152').value=d.name||'';E('dieselCapacity152').value=d.capacity_l||0;
-  E('dieselCurrent152').value=d.current_l||0;E('dieselMin152').value=d.min_l||0;E('dieselPrice152').value=d.price_per_l||'';
-  E('dieselNotes152').value=d.notes||'';E('dieselFormTitle152').textContent='Dieselreserve bearbeiten';E('dieselForm152').hidden=false;
-  E('dieselForm152').scrollIntoView({behavior:'smooth'});
+async function saveMovement(){
+ const reserve_id=+E('moveReserve153').value||0,liters=n('moveLiters153'); if(!reserve_id||liters<=0)return alert('Bitte Tank und Liter eingeben.');
+ const type=E('moveType153').value,d=diesel.find(x=>+x.id===reserve_id); if(!d)return;
+ let current=+d.current_l||0;
+ if(type==='zugang')current+=liters;
+ else if(type==='entnahme')current=Math.max(0,current-liters);
+ else if(type==='korrektur')current=liters;
+ try{
+   await update('diesel_reserves',{current_l:current,price_per_l:n('movePrice153')||d.price_per_l||null,updated_at:new Date().toISOString()},'id=eq.'+reserve_id);
+   await insert('diesel_movements',{reserve_id,movement_type:type,liters,movement_date:E('moveDate153').value||new Date().toISOString().slice(0,10),price_per_l:n('movePrice153')||null,notes:E('moveNotes153').value.trim()||null,created_by:me.id},false);
+   E('moveLiters153').value='';E('moveNotes153').value='';await loadManagement();
+ }catch(e){alert('Dieselbewegung konnte nicht gespeichert werden: '+e.message)}
 }
-function renderDiesel152(){
-  const total=diesel152.reduce((s,x)=>s+(+x.current_l||0),0);
-  const capacity=diesel152.reduce((s,x)=>s+(+x.capacity_l||0),0);
-  const value=diesel152.reduce((s,x)=>s+(+x.current_l||0)*(+x.price_per_l||0),0);
-  const low=diesel152.filter(x=>(+x.current_l||0)<=(+x.min_l||0)).length;
-  E('dieselSummary152').innerHTML=`
-    <div><small>Diesel gesamt</small><b>${total.toLocaleString('de-DE')} l</b></div>
-    <div><small>Kapazität</small><b>${capacity.toLocaleString('de-DE')} l</b></div>
-    <div><small>Warenwert</small><b>${money(value)}</b></div>
-    <div><small>Unter Mindestbestand</small><b>${low}</b></div>`;
-  E('dieselList152').innerHTML=diesel152.map(d=>{
-    const pct=d.capacity_l>0?Math.min(100,(+d.current_l/+d.capacity_l)*100):0;
-    const low=(+d.current_l||0)<=(+d.min_l||0);
-    return `<div class="management-row152 ${low?'warning152':''}">
-      <div class="management-main152"><b>${esc(d.name)}</b><p>${(+d.current_l||0).toLocaleString('de-DE')} l von ${(+d.capacity_l||0).toLocaleString('de-DE')} l${d.price_per_l?' · '+money(d.price_per_l)+'/l':''}</p>
-      <div class="fuel-bar152"><i style="width:${pct}%"></i></div></div>
-      <div class="management-actions152"><button class="secondary compact" data-diesel-edit152="${d.id}">Bearbeiten</button><button class="danger compact" data-diesel-del152="${d.id}">Löschen</button></div>
-    </div>`;
-  }).join('')||'<div class="card"><p class="muted">Noch keine Dieselreserve angelegt.</p></div>';
-  document.querySelectorAll('[data-diesel-edit152]').forEach(b=>b.onclick=()=>editDiesel152(+b.dataset.dieselEdit152));
-  document.querySelectorAll('[data-diesel-del152]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('Dieselbestand wirklich löschen?'))return;await remove('diesel_reserves','id=eq.'+b.dataset.dieselDel152);await loadManagement152();
-  });
+function machineStats(machineId){
+ const logs=fuelLogs.filter(x=>+x.machine_id===+machineId).sort((a,b)=>String(a.log_date).localeCompare(String(b.log_date))||a.id-b.id);
+ const liters=logs.reduce((s,x)=>s+(+x.liters||0),0),cost=logs.reduce((s,x)=>s+(+x.liters||0)*(+x.price_per_l||0),0);
+ const withH=logs.filter(x=>x.operating_hours!=null);
+ let hourDiff=0;
+ if(withH.length>=2)hourDiff=(+withH[withH.length-1].operating_hours||0)-(+withH[0].operating_hours||0);
+ const lph=hourDiff>0?liters/hourDiff:null;
+ return {logs,liters,cost,hourDiff,lph};
 }
-
-/* ERSATZTEILE */
-function resetPart152(){
-  ['partId152','partName152','partNumber152','partCategory152','partQty152','partMin152','partCost152','partLocation152','partNotes152'].forEach(id=>E(id).value='');
-  E('partUnit152').value='Stück';E('partFormTitle152').textContent='Ersatzteil anlegen';E('partForm152').hidden=false;
+function renderMachineFuel(){
+ const box=E('machineFuelOverview153');if(!box)return;
+ box.innerHTML='<div class="machine-fuel-grid153">'+machinePark().map(m=>{
+   const st=machineStats(m.id),last=st.logs[st.logs.length-1];
+   return `<div class="card machine-fuel-card153">
+    <div class="sectionhead"><div><span class="section-kicker">MASCHINE</span><h3>${esc(m.name)}</h3></div><span class="fuel-pill153">${st.lph!=null?st.lph.toFixed(1).replace('.',',')+' l/h':'— l/h'}</span></div>
+    <div class="fuel-stats153">
+      <div><small>Getankt gesamt</small><b>${st.liters.toFixed(1).replace('.',',')} l</b></div>
+      <div><small>Betriebsstunden Zeitraum</small><b>${st.hourDiff>0?st.hourDiff.toFixed(1).replace('.',',')+' h':'—'}</b></div>
+      <div><small>Kraftstoffkosten</small><b>${money(st.cost)}</b></div>
+      <div><small>Letzte Tankung</small><b>${last?new Date(last.log_date+'T12:00:00').toLocaleDateString('de-DE'):'—'}</b></div>
+    </div>
+    <div class="fuel-log-mini153">${st.logs.slice().reverse().slice(0,5).map(x=>`<div><span>${new Date(x.log_date+'T12:00:00').toLocaleDateString('de-DE')}</span><b>${(+x.liters).toFixed(1)} l</b><span>${x.operating_hours!=null?(+x.operating_hours).toFixed(1)+' h':'—'}</span><button class="danger compact" data-fuellog-del153="${x.id}">×</button></div>`).join('')||'<p class="muted">Noch keine Tankungen.</p>'}</div>
+   </div>`;
+ }).join('')+'</div>';
+ document.querySelectorAll('[data-fuellog-del153]').forEach(b=>b.onclick=async()=>{if(!confirm('Tankung löschen?'))return;await remove('machine_fuel_logs','id=eq.'+b.dataset.fuellogDel153);await loadManagement()});
 }
-async function savePart152(){
-  const name=E('partName152').value.trim();if(!name)return alert('Bitte Bezeichnung eingeben.');
-  const obj={name,part_number:E('partNumber152').value.trim()||null,category:E('partCategory152').value.trim()||null,
-    quantity:num('partQty152'),min_quantity:num('partMin152'),unit:E('partUnit152').value.trim()||'Stück',
-    unit_cost:num('partCost152'),location:E('partLocation152').value.trim()||null,notes:E('partNotes152').value.trim()||null,updated_at:new Date().toISOString()};
-  const id=+E('partId152').value||0;
-  if(id)await update('spare_parts',obj,'id=eq.'+id);else await insert('spare_parts',{...obj,created_by:me.id},false);
-  E('partForm152').hidden=true;await loadManagement152();
-}
-function editPart152(id){
-  const p=parts152.find(x=>+x.id===+id);if(!p)return;
-  E('partId152').value=p.id;E('partName152').value=p.name||'';E('partNumber152').value=p.part_number||'';E('partCategory152').value=p.category||'';
-  E('partQty152').value=p.quantity||0;E('partMin152').value=p.min_quantity||0;E('partUnit152').value=p.unit||'Stück';E('partCost152').value=p.unit_cost||0;
-  E('partLocation152').value=p.location||'';E('partNotes152').value=p.notes||'';E('partFormTitle152').textContent='Ersatzteil bearbeiten';E('partForm152').hidden=false;
-  E('partForm152').scrollIntoView({behavior:'smooth'});
-}
-function renderParts152(){
-  const total=parts152.reduce((s,x)=>s+(+x.quantity||0),0),value=parts152.reduce((s,x)=>s+(+x.quantity||0)*(+x.unit_cost||0),0);
-  const low=parts152.filter(x=>(+x.quantity||0)<=(+x.min_quantity||0)).length;
-  E('partsSummary152').innerHTML=`<div><small>Positionen</small><b>${parts152.length}</b></div><div><small>Menge gesamt</small><b>${total.toLocaleString('de-DE')}</b></div><div><small>Lagerwert</small><b>${money(value)}</b></div><div><small>Nachbestellen</small><b>${low}</b></div>`;
-  E('partsList152').innerHTML=parts152.map(p=>`<div class="management-row152 ${(+p.quantity||0)<=(+p.min_quantity||0)?'warning152':''}">
-    <div class="management-main152"><b>${esc(p.name)}</b><p>${p.part_number?esc(p.part_number)+' · ':''}${(+p.quantity||0).toLocaleString('de-DE')} ${esc(p.unit||'Stück')} · ${money(p.unit_cost)} / Einheit${p.location?' · '+esc(p.location):''}</p></div>
-    <div class="management-actions152"><button class="secondary compact" data-part-edit152="${p.id}">Bearbeiten</button><button class="danger compact" data-part-del152="${p.id}">Löschen</button></div>
-  </div>`).join('')||'<div class="card"><p class="muted">Noch keine Ersatzteile angelegt.</p></div>';
-  document.querySelectorAll('[data-part-edit152]').forEach(b=>b.onclick=()=>editPart152(+b.dataset.partEdit152));
-  document.querySelectorAll('[data-part-del152]').forEach(b=>b.onclick=async()=>{if(!confirm('Ersatzteil wirklich löschen?'))return;await remove('spare_parts','id=eq.'+b.dataset.partDel152);await loadManagement152()});
-}
-
-/* KOSTEN */
-function populateCostMachines152(){
-  const sel=E('costMachine152');if(!sel)return;const v=sel.value;
-  sel.innerHTML='<option value="">Keine Maschine</option>'+(machines||[]).filter(m=>(m.machine_kind||'maschinenpark')!=='anbaugeraet').map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
-  if(v)sel.value=v;
-}
-function calc152(){
-  const h=num('costHours152'),diesel=h*num('costDieselUse152')*num('costDieselPrice152'),labor=h*num('costLabor152'),machine=h*num('costMachineRate152'),other=num('costOther152');
-  const base=diesel+labor+machine+other,price=base*(1+num('costMarkup152')/100);
-  E('calcDiesel152').textContent=money(diesel);E('calcLabor152').textContent=money(labor);E('calcMachine152').textContent=money(machine);E('calcBase152').textContent=money(base);E('calcPrice152').textContent=money(price);
-  return {diesel,labor,machine,base,price};
-}
-function resetCost152(){
-  E('costId152').value='';E('costName152').value='';E('costCategory152').value='';E('costMachine152').value='';E('costHours152').value='1';
-  ['costDieselUse152','costDieselPrice152','costLabor152','costMachineRate152','costOther152','costMarkup152'].forEach(id=>E(id).value='0');
-  E('costNotes152').value='';E('deleteCostCalc152').hidden=true;calc152();
-}
-async function saveCost152(){
-  const name=E('costName152').value.trim();if(!name)return alert('Bitte Bezeichnung eingeben.');
-  const obj={name,category:E('costCategory152').value.trim()||null,machine_id:+E('costMachine152').value||null,hours:num('costHours152'),
-    diesel_l_per_h:num('costDieselUse152'),diesel_price:num('costDieselPrice152'),labor_per_h:num('costLabor152'),
-    machine_per_h:num('costMachineRate152'),other_costs:num('costOther152'),markup_percent:num('costMarkup152'),
-    notes:E('costNotes152').value.trim()||null,updated_at:new Date().toISOString()};
-  const id=+E('costId152').value||0;
-  if(id)await update('cost_calculations',obj,'id=eq.'+id);else await insert('cost_calculations',{...obj,created_by:me.id},false);
-  await loadManagement152();resetCost152();
-}
-function editCost152(id){
-  const c=costs152.find(x=>+x.id===+id);if(!c)return;
-  E('costId152').value=c.id;E('costName152').value=c.name||'';E('costCategory152').value=c.category||'';E('costMachine152').value=c.machine_id||'';
-  E('costHours152').value=c.hours||0;E('costDieselUse152').value=c.diesel_l_per_h||0;E('costDieselPrice152').value=c.diesel_price||0;
-  E('costLabor152').value=c.labor_per_h||0;E('costMachineRate152').value=c.machine_per_h||0;E('costOther152').value=c.other_costs||0;
-  E('costMarkup152').value=c.markup_percent||0;E('costNotes152').value=c.notes||'';E('deleteCostCalc152').hidden=false;calc152();
-  E('mgmtCosts152').scrollIntoView({behavior:'smooth'});
-}
-function storedPrice152(c){
-  const base=(+c.hours||0)*((+c.diesel_l_per_h||0)*(+c.diesel_price||0)+(+c.labor_per_h||0)+(+c.machine_per_h||0))+(+c.other_costs||0);
-  return base*(1+(+c.markup_percent||0)/100);
-}
-function renderCosts152(){
-  E('costList152').innerHTML=costs152.map(c=>`<div class="management-row152"><div class="management-main152"><b>${esc(c.name)}</b><p>${c.category?esc(c.category)+' · ':''}${(+c.hours||0).toLocaleString('de-DE')} h · Empfehlung ${money(storedPrice152(c))}</p></div><div class="management-actions152"><button class="secondary compact" data-cost-edit152="${c.id}">Öffnen</button></div></div>`).join('')||'<p class="muted">Noch keine Kalkulation gespeichert.</p>';
-  document.querySelectorAll('[data-cost-edit152]').forEach(b=>b.onclick=()=>editCost152(+b.dataset.costEdit152));
+function renderReserveMovement(){
+ const box=E('dieselMovementList153');if(!box)return;
+ box.innerHTML='<h3>Letzte Dieselbewegungen</h3>'+movements.slice(0,30).map(x=>{
+   const d=diesel.find(z=>+z.id===+x.reserve_id),m=machines.find(z=>+z.id===+x.machine_id);
+   return `<div class="movement-row153"><span>${new Date(x.movement_date+'T12:00:00').toLocaleDateString('de-DE')}</span><b>${esc(d?.name||'Tank')}</b><span>${esc(x.movement_type)}</span><strong>${(+x.liters||0).toFixed(1)} l</strong><span>${m?esc(m.name):''}</span></div>`;
+ }).join('')||'<p class="muted">Noch keine Bewegungen.</p>';
 }
 
-function setupManagement152(){
-  setupTabs152();
-  E('newDiesel152').onclick=resetDiesel152;E('closeDiesel152').onclick=()=>E('dieselForm152').hidden=true;E('saveDiesel152').onclick=saveDiesel152;
-  E('newPart152').onclick=resetPart152;E('closePart152').onclick=()=>E('partForm152').hidden=true;E('savePart152').onclick=savePart152;
-  E('newCostCalc152').onclick=resetCost152;E('saveCostCalc152').onclick=saveCost152;E('resetCostCalc152').onclick=resetCost152;
-  E('deleteCostCalc152').onclick=async()=>{const id=+E('costId152').value||0;if(!id||!confirm('Kalkulation wirklich löschen?'))return;await remove('cost_calculations','id=eq.'+id);await loadManagement152();resetCost152()};
-  ['costHours152','costDieselUse152','costDieselPrice152','costLabor152','costMachineRate152','costOther152','costMarkup152'].forEach(id=>E(id).addEventListener('input',calc152));
-  document.querySelector('nav button[data-page="management"]')?.addEventListener('click',()=>setTimeout(loadManagement152,50));
-  resetCost152();
+/* existing V15.2 basics: diesel/parts/costs */
+function renderDiesel(){
+ const total=diesel.reduce((s,x)=>s+(+x.current_l||0),0),capacity=diesel.reduce((s,x)=>s+(+x.capacity_l||0),0),value=diesel.reduce((s,x)=>s+(+x.current_l||0)*(+x.price_per_l||0),0),low=diesel.filter(x=>(+x.current_l||0)<=(+x.min_l||0)).length;
+ E('dieselSummary152').innerHTML=`<div><small>Eigener Diesel</small><b>${total.toLocaleString('de-DE')} l</b></div><div><small>Kapazität</small><b>${capacity.toLocaleString('de-DE')} l</b></div><div><small>Warenwert</small><b>${money(value)}</b></div><div><small>Nachbestellen</small><b>${low}</b></div>`;
+ E('dieselList152').innerHTML=diesel.map(d=>`<div class="management-row152"><div class="management-main152"><b>${esc(d.name)}</b><p>${(+d.current_l||0).toLocaleString('de-DE')} l / ${(+d.capacity_l||0).toLocaleString('de-DE')} l · ${d.price_per_l?money(d.price_per_l)+'/l':'kein Preis'}</p></div><div class="management-actions152"><button class="secondary compact" data-dedit="${d.id}">Bearbeiten</button><button class="danger compact" data-ddel="${d.id}">Löschen</button></div></div>`).join('')||'<p class="muted">Noch kein eigener Dieseltank.</p>';
+ document.querySelectorAll('[data-dedit]').forEach(b=>b.onclick=()=>editDiesel(+b.dataset.dedit));document.querySelectorAll('[data-ddel]').forEach(b=>b.onclick=async()=>{if(confirm('Tank löschen?')){await remove('diesel_reserves','id=eq.'+b.dataset.ddel);await loadManagement()}});
 }
+function editDiesel(id){const d=diesel.find(x=>+x.id===id);if(!d)return;E('dieselId152').value=d.id;E('dieselName152').value=d.name||'';E('dieselCapacity152').value=d.capacity_l||0;E('dieselCurrent152').value=d.current_l||0;E('dieselMin152').value=d.min_l||0;E('dieselPrice152').value=d.price_per_l||'';E('dieselNotes152').value=d.notes||'';E('dieselForm152').hidden=false}
+async function saveDiesel(){const name=E('dieselName152').value.trim();if(!name)return alert('Bezeichnung fehlt.');const obj={name,capacity_l:n('dieselCapacity152'),current_l:n('dieselCurrent152'),min_l:n('dieselMin152'),price_per_l:n('dieselPrice152')||null,notes:E('dieselNotes152').value.trim()||null,updated_at:new Date().toISOString()};const id=+E('dieselId152').value||0;if(id)await update('diesel_reserves',obj,'id=eq.'+id);else await insert('diesel_reserves',{...obj,created_by:me.id},false);E('dieselForm152').hidden=true;await loadManagement()}
+function renderParts(){const value=parts.reduce((s,x)=>s+(+x.quantity||0)*(+x.unit_cost||0),0),low=parts.filter(x=>(+x.quantity||0)<=(+x.min_quantity||0)).length;E('partsSummary152').innerHTML=`<div><small>Positionen</small><b>${parts.length}</b></div><div><small>Lagerwert</small><b>${money(value)}</b></div><div><small>Nachbestellen</small><b>${low}</b></div>`;E('partsList152').innerHTML=parts.map(p=>`<div class="management-row152"><div><b>${esc(p.name)}</b><p>${(+p.quantity||0)} ${esc(p.unit||'Stück')} · ${money(p.unit_cost)}</p></div></div>`).join('')||'<p class="muted">Noch keine Ersatzteile.</p>'}
+function populateCostMachines(){if(!E('costMachine152'))return;E('costMachine152').innerHTML='<option value="">Keine Maschine</option>'+machinePark().map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}
+function calcCost(){const h=n('costHours152'),dieselCost=h*n('costDieselUse152')*n('costDieselPrice152'),labor=h*n('costLabor152'),mach=h*n('costMachineRate152'),base=dieselCost+labor+mach+n('costOther152'),price=base*(1+n('costMarkup152')/100);E('calcDiesel152').textContent=money(dieselCost);E('calcLabor152').textContent=money(labor);E('calcMachine152').textContent=money(mach);E('calcBase152').textContent=money(base);E('calcPrice152').textContent=money(price)}
+function renderCosts(){E('costList152').innerHTML=costs.map(c=>`<div class="management-row152"><div><b>${esc(c.name)}</b><p>${(+c.hours||0)} h · Diesel ${(+c.diesel_l_per_h||0)} l/h</p></div></div>`).join('')||'<p class="muted">Noch keine Kalkulationen.</p>'}
 
-const oldLoad152=load;
-load=async function(){await oldLoad152();await loadManagement152()};
-setTimeout(async()=>{setupManagement152();await loadManagement152()},1800);
+async function loadManagement(){
+ if(!token)return;
+ ensureDieselAdvanced();
+ [diesel,parts,costs,fuelLogs,movements]=await Promise.all([
+  select('diesel_reserves','select=*&order=name.asc'),select('spare_parts','select=*&order=name.asc'),select('cost_calculations','select=*&order=updated_at.desc'),
+  select('machine_fuel_logs','select=*&order=log_date.desc,id.desc'),select('diesel_movements','select=*&order=movement_date.desc,id.desc')
+ ]);
+ renderDiesel();renderParts();renderCosts();populateFuelSelectors();populateCostMachines();renderMachineFuel();renderReserveMovement();
+}
+function setup(){
+ setupTabs();ensureDieselAdvanced();
+ E('newDiesel152').onclick=()=>{E('dieselId152').value='';E('dieselName152').value='';E('dieselCapacity152').value='';E('dieselCurrent152').value='';E('dieselMin152').value='';E('dieselPrice152').value='';E('dieselNotes152').value='';E('dieselForm152').hidden=false};
+ E('closeDiesel152').onclick=()=>E('dieselForm152').hidden=true;E('saveDiesel152').onclick=saveDiesel;
+ ['costHours152','costDieselUse152','costDieselPrice152','costLabor152','costMachineRate152','costOther152','costMarkup152'].forEach(id=>E(id)?.addEventListener('input',calcCost));
+ document.querySelector('nav button[data-page="management"]')?.addEventListener('click',()=>setTimeout(loadManagement,50));
+}
+const oldLoad=load;load=async function(){await oldLoad();await loadManagement()};
+setTimeout(async()=>{setup();await loadManagement()},1800);
 })();

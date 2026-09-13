@@ -204,3 +204,13 @@ Wichtig: app.js bleibt unverändert.
 - Kalkulationen können gespeichert und später wieder geöffnet werden.
 - Supabase-Tabellen: `diesel_reserves`, `spare_parts`, `cost_calculations`.
 - Neu: `management15.js`.
+
+## V15.3 – Dieselmanagement & Rechnungsportal überarbeitet
+- Traktor-/Maschinen-Tankungen mit Datum, Liter, Betriebsstunden, Preis und optional Entnahme aus eigenem Dieseltank.
+- Automatische Maschinenübersicht mit getankten Litern, Kraftstoffkosten und berechnetem Durchschnittsverbrauch in l/h.
+- Eigene Dieselreserve mit separatem Register für Zugang, Entnahme und Bestandskorrektur.
+- Dieselentnahme beim Tanken kann automatisch vom eigenen Tankbestand abgezogen werden.
+- Rechnungsportal komplett übersichtlicher aufgebaut.
+- Rechnungen orientieren sich jetzt an Aufträgen: Kunde + Auftrag auswählen, Auftragspositionen, Einheiten und Fahrtkosten übernehmen.
+- Rechnungsarchiv mit Status-Kennzahlen und Suche.
+- Neue Datenbanktabellen `machine_fuel_logs` und `diesel_movements`.
