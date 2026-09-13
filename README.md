@@ -172,3 +172,10 @@ Wichtig: app.js bleibt unverändert.
 - Gespeicherte/aktive Fahrtrouten werden in der Farbe des Mitarbeiters dargestellt.
 - Supabase: neues Feld `profiles.color`.
 - Neu: `profilecolors14.js`.
+
+## V15 – Live-Karte & Routenfix
+- Live-Karte ist jetzt fest der große linke Hauptbereich.
+- Fahrtaufzeichnung, aktive Maschinen und Fahrtenverlauf stehen kompakt rechts.
+- Klick auf „Auf Karte“ lädt die GPS-Punkte der abgeschlossenen Fahrt und zeichnet die vollständige Strecke auf der großen Karte.
+- Start und Ziel werden markiert; die Route übernimmt die Mitarbeiterfarbe.
+- CSS und Routen-Script werden mit neuer Versionsnummer geladen, damit Safari nicht die alte Ansicht aus dem Cache nimmt.

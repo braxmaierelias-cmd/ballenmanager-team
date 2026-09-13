@@ -43,13 +43,37 @@ function ensureRouteUi147(){
     <p class="muted route-hint147">Die Fahrt kann unabhängig von einer Arbeitszeit gestartet werden. Bei laufender Arbeitszeit startet die Aufzeichnung automatisch, falls noch keine Fahrt läuft.</p>
   `;
 
-  const mapCard=E('liveMap')?.closest('.card') || E('liveMap')?.parentElement;
-  if(mapCard) mapCard.before(box); else page.appendChild(box);
+  const mapCard=E('liveMap')?.closest('.live-map-card') || E('liveMap')?.closest('.card') || E('liveMap')?.parentElement;
+  const grid=mapCard?.closest('.live-grid');
+  const listCard=page.querySelector('.live-list-card');
+  let side=E('liveSideColumn150');
+
+  if(grid && mapCard){
+    if(!side){
+      side=document.createElement('div');
+      side.id='liveSideColumn150';
+      side.className='live-side-column150';
+      if(listCard && listCard.parentElement===grid){
+        grid.insertBefore(side,listCard);
+        side.appendChild(listCard);
+      }else{
+        grid.appendChild(side);
+        if(listCard) side.appendChild(listCard);
+      }
+    }
+    side.insertBefore(box,side.firstChild);
+  }else if(mapCard){
+    mapCard.after(box);
+  }else{
+    page.appendChild(box);
+  }
 
   const hist=document.createElement('div');
   hist.className='card route-history147';
   hist.innerHTML=`<div class="sectionhead"><div><span class="section-kicker">GESPEICHERTE FAHRTEN</span><h3>Fahrtenverlauf</h3></div></div><div id="routeHistory147"></div>`;
-  if(mapCard) mapCard.after(hist); else page.appendChild(hist);
+  if(side) side.appendChild(hist);
+  else if(mapCard) mapCard.after(hist);
+  else page.appendChild(hist);
 
   E('routeStart147').onclick=()=>startIndependent147();
   E('routeStop147').onclick=()=>stopRoute147();
@@ -215,10 +239,22 @@ function renderRouteHistory147(){
     </div>`).join('')||'<p class="muted">Noch keine gespeicherten Fahrten.</p>';
 
   box.querySelectorAll('[data-route-show]').forEach(b=>b.onclick=async()=>{
-    const id=+b.dataset.routeShow;selectedRoute147=routeTracks147.find(x=>+x.id===id)||null;
-    routePoints147=await select('route_track_points','select=*&route_track_id=eq.'+id+'&order=id.asc')||[];
-    renderLiveRouteMap147();
-    E('liveMap')?.scrollIntoView({behavior:'smooth',block:'center'});
+    const id=+b.dataset.routeShow;
+    selectedRoute147=routeTracks147.find(x=>+x.id===id)||null;
+    try{
+      routePoints147=await select('route_track_points','select=*&route_track_id=eq.'+id+'&order=id.asc')||[];
+      if(!routePoints147.length){
+        alert('Für diese Fahrt sind keine GPS-Streckenpunkte gespeichert.');
+        return;
+      }
+      renderLiveRouteMap147();
+      setTimeout(()=>{
+        try{routeMap147?.invalidateSize(true)}catch(_){}
+        E('liveMap')?.scrollIntoView({behavior:'smooth',block:'center'});
+      },120);
+    }catch(err){
+      alert('Strecke konnte nicht geladen werden: '+(err?.message||err));
+    }
   });
   box.querySelectorAll('[data-route-del]').forEach(b=>b.onclick=async()=>{
     const id=+b.dataset.routeDel;if(!confirm('Gespeicherte Fahrt wirklich löschen?'))return;
@@ -254,8 +290,12 @@ function renderLiveRouteMap147(){
         const routeUser=profiles.find(p=>p.id===routeUserId);
         const routeColor=routeUser?.color||'#5F8E49';
         const line=L.polyline(pts,{weight:5,color:routeColor}).addTo(routeMap147);routeLayers147.push(line);fit.push(line.getBounds());
-        L.circleMarker(pts[0],{radius:6,weight:2,fillOpacity:1}).addTo(routeMap147).bindTooltip('Start');
-        L.circleMarker(pts[pts.length-1],{radius:6,weight:2,fillOpacity:1}).addTo(routeMap147).bindTooltip(activeRoute147?'Aktuell':'Ziel');
+        const shownRoute=activeRoute147||selectedRoute147;
+        if(shownRoute){
+          line.bindPopup(`<b>${esc(shownRoute.name||'Fahrt')}</b><br>${((+shownRoute.distance_m||0)/1000).toFixed(2).replace('.',',')} km · ${dur147(shownRoute.duration_seconds||duration147(shownRoute))}`);
+        }
+        L.circleMarker(pts[0],{radius:6,weight:2,fillOpacity:1,color:routeColor,fillColor:routeColor}).addTo(routeMap147).bindTooltip('Start');
+        L.circleMarker(pts[pts.length-1],{radius:6,weight:2,fillOpacity:1,color:routeColor,fillColor:routeColor}).addTo(routeMap147).bindTooltip(activeRoute147?'Aktuell':'Ziel');
       }
     }
     if(fit.length){let b=fit[0];for(let i=1;i<fit.length;i++)b.extend(fit[i]);routeMap147.fitBounds(b,{padding:[25,25],maxZoom:16})}
