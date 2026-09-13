@@ -112,3 +112,13 @@ button{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;b
 /* FarmManager V14.4 */
 .field-select-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 8px}
 .field-select-head button{width:auto;margin:0}
+
+/* ===== FarmManager V14.6 ===== */
+.multi-impl146{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:7px}
+.impl-choice146{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #dfe6dc;border-radius:12px;background:#fff}
+.impl-choice146 input{width:20px;height:20px;flex:0 0 auto}
+.impl-choice146 span{display:flex;flex-direction:column;gap:2px}.impl-count146{grid-column:1/-1;color:#738072;font-size:12px}
+.work-delete146{margin-top:6px!important}
+.calendar-section146{margin:0 0 28px}.calendar-event146{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #e6ebe4}
+.calendar-event146 p{margin:4px 0 0;color:#788178}
+@media(max-width:700px){.multi-impl146{grid-template-columns:1fr}.calendar-event146{align-items:flex-start}}

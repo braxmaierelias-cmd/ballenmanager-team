@@ -136,3 +136,16 @@ Wichtig: app.js bleibt unverändert.
 - Bei einem Fehler gibt es keinen halbfertigen Auftrag mehr.
 - Ein nachträglicher Ladefehler zeigt nicht mehr fälschlich „Auftrag konnte nicht gespeichert werden“.
 - Neu: `ordersave14.js`.
+
+## V14.6 – Arbeitszeiten, 4 Anbaugeräte, Kalender
+- Arbeitszeiten können gelöscht werden; Admins können alle, Mitarbeiter ihre eigenen löschen.
+- Bis zu 4 Anbaugeräte in der Arbeitszeiterfassung.
+- Bis zu 4 Anbaugeräte bei Auftrag erstellen.
+- Bis zu 4 Anbaugeräte im Auftragseditor.
+- Zwei getrennte Kalender: „Mein Kalender“ und „Team-Kalender“.
+- Termine haben Startdatum und Enddatum.
+- Termine können bearbeitet und gelöscht werden.
+- Private Termine sind nur im persönlichen Kalender des Erstellers sichtbar.
+- Team-Termine stehen im unteren Kalender für alle sichtbar.
+- Supabase wurde um Kalender-Sichtbarkeit, Enddatum sowie Mehrfach-Anbaugeräte-Verknüpfungen erweitert.
+- Neu: `operations14.js`.
