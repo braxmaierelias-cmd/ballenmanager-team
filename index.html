@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111713">
 <link rel="manifest" href="manifest.json"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="style.css?v=15.4">
+<link rel="stylesheet" href="style.css?v=16.0">
 <title>FarmManager</title>
 </head>
 <body>
@@ -125,73 +125,84 @@
   <section id="p-rechnungen" class="page">
     <div class="pagehead">
       <div><span class="section-kicker">ABRECHNUNG</span><h2>Rechnungsportal</h2></div>
-      <button id="newInvoice151" class="compact">+ Neue Rechnung</button>
+      <button id="newInvoice160" class="compact">+ Neue Rechnung</button>
     </div>
 
-    <div class="invoice-dashboard153">
-      <div><small>Entwürfe</small><b id="invDraftCount153">0</b></div>
-      <div><small>Versendet</small><b id="invSentCount153">0</b></div>
-      <div><small>Bezahlt</small><b id="invPaidCount153">0</b></div>
-      <div><small>Offener Rechnungswert</small><b id="invOpenValue153">0,00 €</b></div>
+    <div class="invoice-dashboard160">
+      <div><small>Entwürfe</small><b id="invDraft160">0</b></div>
+      <div><small>Versendet</small><b id="invSent160">0</b></div>
+      <div><small>Bezahlt</small><b id="invPaid160">0</b></div>
+      <div><small>Offener Rechnungswert</small><b id="invOpenValue160">0,00 €</b></div>
     </div>
 
-    <div class="invoice-portal153">
-      <div id="invoiceEditor151" class="card invoice-editor151">
+    <div class="invoice-layout160">
+      <div class="card invoice-editor160">
+        <input type="hidden" id="invoiceId160">
+
         <div class="sectionhead">
-          <div><span class="section-kicker">NEUE / BEARBEITEN</span><h3 id="invoiceEditorTitle151">Neue Rechnung</h3></div>
-          <button id="closeInvoice151" class="secondary compact" hidden>Schließen</button>
+          <div><span class="section-kicker">RECHNUNG</span><h3 id="invoiceEditorTitle160">Neue Rechnung</h3></div>
+          <span class="invoice-style-badge160">Stil 1 · Klassisch</span>
         </div>
-        <input type="hidden" id="invoiceId151">
 
-        <div class="invoice-step153">
-          <span>1</span><div><b>Kunde & Auftrag</b><small>Auftragsdaten direkt übernehmen</small></div>
-        </div>
+        <div class="invoice-step160"><span>1</span><div><b>Kunde & Auftrag</b><small>Daten aus einem bestehenden Auftrag übernehmen oder selbst schreiben.</small></div></div>
         <div class="grid">
-          <div class="full"><label>Kunde *</label><select id="invoiceCustomer151"></select></div>
-          <div class="full"><label>Auftrag übernehmen (optional)</label><select id="invoiceOrder151"></select></div>
+          <div class="full"><label>Kunde *</label><select id="invoiceCustomer160"></select></div>
+          <div class="full"><label>Auftrag übernehmen (optional)</label><select id="invoiceOrder160"></select></div>
+          <div><label>Kundenname auf Rechnung</label><input id="invoiceCustomerName160"></div>
+          <div><label>Firma auf Rechnung</label><input id="invoiceCustomerCompany160"></div>
+          <div class="full"><label>Kundenanschrift</label><textarea id="invoiceCustomerAddress160"></textarea></div>
         </div>
-        <div id="invoiceOrderInfo153" class="invoice-order-info153"></div>
 
-        <div class="invoice-step153">
-          <span>2</span><div><b>Rechnungsdaten</b><small>Nummer, Datum, Fälligkeit und Steuer</small></div>
-        </div>
+        <div class="invoice-step160"><span>2</span><div><b>Rechnungsdaten</b><small>Alle Texte der Endrechnung können selbst angepasst werden.</small></div></div>
         <div class="grid">
-          <div><label>Rechnungsnummer</label><input id="invoiceNumber151" readonly></div>
-          <div><label>Status</label><select id="invoiceStatus151"><option value="entwurf">Entwurf</option><option value="versendet">Versendet</option><option value="bezahlt">Bezahlt</option></select></div>
-          <div><label>Rechnungsdatum</label><input id="invoiceDate151" type="date"></div>
-          <div><label>Fällig am</label><input id="invoiceDue151" type="date"></div>
-          <div><label>MwSt.</label><select id="invoiceVat151"><option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option></select></div>
-          <div class="full"><label>Notiz / Zahlungsinformation</label><textarea id="invoiceNotes151" placeholder="Zahlungsziel, Bankverbindung, Hinweise …"></textarea></div>
+          <div><label>Rechnungsnummer</label><input id="invoiceNumber160" readonly></div>
+          <div><label>Status</label><select id="invoiceStatus160"><option value="entwurf">Entwurf</option><option value="versendet">Versendet</option><option value="bezahlt">Bezahlt</option></select></div>
+          <div><label>Rechnungsdatum</label><input id="invoiceDate160" type="date"></div>
+          <div><label>Fällig am</label><input id="invoiceDue160" type="date"></div>
+          <div><label>Leistungszeitraum</label><input id="invoiceServicePeriod160" placeholder="z. B. September 2026"></div>
+          <div><label>MwSt.</label><select id="invoiceVat160"><option value="19">19 %</option><option value="7">7 %</option><option value="0">0 %</option></select></div>
+          <div class="full"><label>Betreff / Überschrift</label><input id="invoiceSubject160" value="Rechnung"></div>
+          <div class="full"><label>Anrede</label><input id="invoiceSalutation160" placeholder="z. B. Sehr geehrter Herr Mustermann,"></div>
+          <div class="full"><label>Eigener Rechnungstext</label><textarea id="invoiceIntro160" placeholder="Hier kannst du den Text der Endrechnung selbst schreiben."></textarea></div>
+          <div class="full"><label>Zahlungsbedingungen</label><textarea id="invoicePaymentTerms160" placeholder="z. B. Zahlbar innerhalb von 14 Tagen ohne Abzug."></textarea></div>
+          <div class="full"><label>Fußzeile / Bank / Steuerdaten</label><textarea id="invoiceFooter160" placeholder="Bankverbindung, Steuernummer, Kontaktdaten usw."></textarea></div>
+          <div class="full"><label>Interne Referenz / Auftragsnummer</label><input id="invoiceReference160"></div>
         </div>
 
-        <div class="sectionhead invoice-items-head151">
-          <div class="invoice-step153 no-margin153"><span>3</span><div><b>Rechnungspositionen</b><small>Wie beim Auftrag: Leistung, Menge, Einheit und Preis</small></div></div>
-          <button id="addInvoiceItem151" class="secondary compact">+ Position</button>
+        <div class="invoice-step160"><span>3</span><div><b>Rechnungspositionen</b><small>Bis zu 5 Leistungen – passend zu deinen Aufträgen.</small></div></div>
+        <div class="invoice-position-head160">
+          <span>Leistung / Produkt</span><span>Menge</span><span>Einheit</span><span>Preis</span><span>Gesamt</span>
         </div>
-        <div class="invoice-item-head153">
-          <span>Leistung / Produkt</span><span>Menge</span><span>Einheit</span><span>Preis</span><span>Gesamt</span><span></span>
-        </div>
-        <div id="invoiceItems151"></div>
+        <div id="invoiceItems160"></div>
 
-        <div class="invoice-total151">
-          <div><span>Netto</span><b id="invoiceNet151">0,00 €</b></div>
-          <div><span>MwSt.</span><b id="invoiceVatAmount151">0,00 €</b></div>
-          <div class="invoice-grand151"><span>Gesamt</span><strong id="invoiceGross151">0,00 €</strong></div>
+        <div class="invoice-total160">
+          <div><span>Netto</span><b id="invoiceNet160">0,00 €</b></div>
+          <div><span>MwSt.</span><b id="invoiceVatAmount160">0,00 €</b></div>
+          <div class="grand160"><span>Gesamtbetrag</span><strong id="invoiceGross160">0,00 €</strong></div>
         </div>
 
-        <div class="rowbuttons invoice-actions-bottom153">
-          <button id="saveInvoice151">Rechnung speichern</button>
-          <button id="printInvoice151" class="secondary">Drucken / PDF</button>
-          <button id="deleteInvoice151" class="danger" hidden>Rechnung löschen</button>
+        <div class="invoice-step160"><span>4</span><div><b>E-Mail-Versand</b><small>Empfänger eintragen und die fertige Rechnung direkt als PDF versenden.</small></div></div>
+        <div class="grid">
+          <div class="full"><label>E-Mail des Empfängers</label><input id="invoiceEmail160" type="email" placeholder="kunde@beispiel.de"></div>
+          <div class="full"><label>E-Mail-Betreff</label><input id="invoiceEmailSubject160"></div>
+          <div class="full"><label>E-Mail-Nachricht</label><textarea id="invoiceEmailMessage160"></textarea></div>
         </div>
+
+        <div class="rowbuttons invoice-actions160">
+          <button id="saveInvoice160">Rechnung speichern</button>
+          <button id="previewInvoice160" class="secondary">PDF anzeigen</button>
+          <button id="sendInvoice160" class="invoice-send160">✉ Rechnung per E-Mail senden</button>
+          <button id="deleteInvoice160" class="danger" hidden>Rechnung löschen</button>
+        </div>
+        <p id="invoiceSendStatus160" class="muted"></p>
       </div>
 
-      <div class="card invoice-list151">
+      <div class="card invoice-archive160">
         <div class="sectionhead">
           <div><span class="section-kicker">ARCHIV</span><h3>Gespeicherte Rechnungen</h3></div>
         </div>
-        <input id="invoiceSearch153" placeholder="Rechnung oder Kunde suchen …">
-        <div id="invoiceList151"><p class="muted">Noch keine Rechnungen.</p></div>
+        <input id="invoiceSearch160" placeholder="Rechnung oder Kunde suchen …">
+        <div id="invoiceList160"><p class="muted">Noch keine Rechnungen.</p></div>
       </div>
     </div>
   </section>
@@ -475,7 +486,10 @@
 
 <footer>FarmManager · Gemeinsame Team-Datenbank</footer>
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js?v=7.1"></script><script src="features.js?v=13.0"></script><script src="fieldfix5.js?v=13.6"></script><script src="uiupdate.js?v=13.7"></script><script src="orderupdate.js?v=13.8"></script><script src="orderfix.js?v=13.9"></script><script src="featurefix14.js?v=14.0"></script><script src="worktypes14.js?v=14.1"></script><script src="implements14.js?v=14.2"></script><script src="orderfields14.js?v=14.3"></script><script src="orderfieldsfix14.js?v=14.4"></script><script src="ordersave14.js?v=14.5"></script><script src="operations14.js?v=14.6"></script><script src="routes14.js?v=15.0"></script><script src="profilecolors14.js?v=14.8"></script>
-<script src="invoices15.js?v=15.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="invoices16.js?v=16.0"></script>
 <script src="management15.js?v=15.3"></script>
+<script src="managementfix16.js?v=16.0"></script>
 </body>
 </html>

@@ -223,3 +223,16 @@ Wichtig: app.js bleibt unverändert.
 - Arbeitszeiten, Aufträge, Kunden, Live-Karte, Kalender, Rechnungen und Management ebenfalls lesbarer abgestimmt.
 - Mobile Darstellung weiter optimiert.
 - Keine Funktionslogik verändert.
+
+## V16 – Kalkulationen & Rechnungsportal
+- Kostenkalkulationen lassen sich jetzt zuverlässig speichern.
+- Gespeicherte Kalkulationen können wieder geöffnet, bearbeitet und gelöscht werden.
+- Rechnungsportal im klassischen Stil 1 neu aufgebaut.
+- Maximal 5 Rechnungspositionen, passend zu Auftragseinheiten (Stück, km, m², Stunden, Hektar).
+- Bestehende Aufträge können direkt in die Rechnung übernommen werden.
+- Endrechnung kann über Betreff, Anrede, freien Rechnungstext, Leistungszeitraum, Zahlungsbedingungen und Fußzeile selbst formuliert werden.
+- Kundendaten können für die Rechnung manuell überschrieben werden.
+- Klassisches sauberes PDF mit grünen Akzenten.
+- Empfänger-E-Mail, Betreff und Nachricht direkt im Rechnungsportal.
+- Schaltfläche für automatischen Versand mit PDF-Anhang über Supabase Edge Function `send-invoice-email`.
+- Für den echten automatischen Versand müssen einmalig `RESEND_API_KEY` und `INVOICE_FROM_EMAIL` als Supabase-Secrets hinterlegt werden.

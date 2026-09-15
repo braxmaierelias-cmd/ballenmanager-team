@@ -473,3 +473,39 @@ button.compact{min-height:36px;font-size:12px;padding:8px 11px}
   .kpis{grid-template-columns:1fr 1fr}
   .management-kpis152,.invoice-dashboard153{grid-template-columns:1fr 1fr}
 }
+
+
+/* ===== FarmManager V16 Rechnungen + Kalkulationen ===== */
+.invoice-dashboard160{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.invoice-dashboard160>div{background:#fff;border:1px solid #dde6da;border-radius:14px;padding:17px;display:flex;flex-direction:column;gap:4px}
+.invoice-dashboard160 small{color:#758176;font-size:11px}.invoice-dashboard160 b{font-size:23px}
+.invoice-layout160{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(330px,.65fr);gap:18px;align-items:start}
+.invoice-editor160{border-top:5px solid #5f8e49}
+.invoice-style-badge160{padding:7px 10px;background:#edf5ea;color:#507842;border-radius:999px;font-size:11px;font-weight:800}
+.invoice-step160{display:flex;align-items:center;gap:11px;margin:24px 0 13px;padding-top:18px;border-top:1px solid #e6ece3}
+.invoice-step160:first-of-type{border-top:0;padding-top:0}
+.invoice-step160>span{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;background:#5f8e49;color:#fff;font-weight:800;flex:0 0 auto}
+.invoice-step160>div{display:flex;flex-direction:column}.invoice-step160 b{font-size:14px}.invoice-step160 small{font-size:11px;color:#7b867c}
+.invoice-position-head160{display:grid;grid-template-columns:minmax(220px,2fr) 95px 120px 120px 120px;gap:8px;color:#708073;font-size:10px;font-weight:800;padding:0 0 7px 42px}
+.invoice-position160{display:grid;grid-template-columns:34px minmax(220px,2fr) 95px 120px 120px 120px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid #e8eee6}
+.invoice-pos-number160{width:28px;height:28px;border-radius:50%;background:#eef4eb;display:grid;place-items:center;font-weight:800;color:#5a7750}
+.invoice-position160 input,.invoice-position160 select{margin:0}
+.pos-total160{text-align:right;font-size:13px}
+.invoice-total160{margin:20px 0 10px auto;max-width:430px}
+.invoice-total160>div{display:flex;justify-content:space-between;padding:8px 5px}
+.invoice-total160 .grand160{background:#eef6ea;border-radius:10px;padding:12px}
+.invoice-total160 .grand160 strong{font-size:21px;color:#456b39}
+.invoice-actions160{margin-top:18px;flex-wrap:wrap}
+.invoice-send160{background:#426f38!important}
+.invoice-archive160{position:sticky;top:88px;max-height:76vh;overflow:auto}
+.invoice-row160{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid #e5ebe2}
+.invoice-row160 p{margin:4px 0;color:#6f7b70;font-size:11px}.invoice-row160 b{font-size:14px}
+.invoice-row-actions160{display:flex;gap:7px;flex-wrap:wrap}
+.invoice-status160{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;background:#f0f3ee;text-transform:capitalize}
+.status-versendet{background:#e9f0fa;color:#4d6d93}.status-bezahlt{background:#e6f4df;color:#4d7c41}.status-entwurf{background:#f4f0e5;color:#806d42}
+#invoiceSendStatus160{margin-top:10px;font-weight:700}
+.cost-saved160{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px 0;border-bottom:1px solid #e4ebe1}
+.cost-saved160 b{font-size:14px}.cost-saved160 p{margin:4px 0;color:#6f7a70;font-size:11px}.cost-saved160 small{color:#788378}.cost-saved-actions160{display:flex;gap:7px;flex-wrap:wrap}
+@media(max-width:1100px){.invoice-layout160{grid-template-columns:1fr}.invoice-archive160{position:static;max-height:none}.invoice-dashboard160{grid-template-columns:1fr 1fr}}
+@media(max-width:850px){.invoice-position-head160{display:none}.invoice-position160{grid-template-columns:34px 1fr 1fr}.invoice-position160 .pos-desc160{grid-column:2/-1}.invoice-position160 .pos-total160{text-align:left}.invoice-dashboard160{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.invoice-dashboard160{grid-template-columns:1fr}.invoice-position160{grid-template-columns:34px 1fr}.invoice-position160>*:not(.invoice-pos-number160){grid-column:2}.invoice-row160,.cost-saved160{align-items:flex-start;flex-direction:column}.invoice-row-actions160,.cost-saved-actions160{width:100%}.invoice-row-actions160 button,.cost-saved-actions160 button{flex:1}}
