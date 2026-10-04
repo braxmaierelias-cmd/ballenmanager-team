@@ -1,10 +1,17 @@
 {
-  "name": "LFA Betriebsmanagement",
+  "name": "Land · Forst · Agrar",
   "short_name": "LFA",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f2f5f2",
   "theme_color": "#123c2c",
-  "description": "LFA – Land · Forst · Agrar. Betriebsmanagement für das gesamte Team."
+  "description": "LFA – Land · Forst · Agrar. Betriebsmanagement für das gesamte Team.",
+  "icons": [
+    {
+      "src": "/api/lfa-icon?v=1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
-
