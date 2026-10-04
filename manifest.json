@@ -1,1 +1,10 @@
-{"name": "FarmManager", "short_name": "FarmManager", "start_url": "./", "display": "standalone", "background_color": "#f3f6f2", "theme_color": "#ffffff"}
+{
+  "name": "LFA Betriebsmanagement",
+  "short_name": "LFA",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f2f5f2",
+  "theme_color": "#123c2c",
+  "description": "LFA – Land · Forst · Agrar. Betriebsmanagement für das gesamte Team."
+}
+

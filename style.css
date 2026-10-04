@@ -509,3 +509,62 @@ button.compact{min-height:36px;font-size:12px;padding:8px 11px}
 @media(max-width:1100px){.invoice-layout160{grid-template-columns:1fr}.invoice-archive160{position:static;max-height:none}.invoice-dashboard160{grid-template-columns:1fr 1fr}}
 @media(max-width:850px){.invoice-position-head160{display:none}.invoice-position160{grid-template-columns:34px 1fr 1fr}.invoice-position160 .pos-desc160{grid-column:2/-1}.invoice-position160 .pos-total160{text-align:left}.invoice-dashboard160{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.invoice-dashboard160{grid-template-columns:1fr}.invoice-position160{grid-template-columns:34px 1fr}.invoice-position160>*:not(.invoice-pos-number160){grid-column:2}.invoice-row160,.cost-saved160{align-items:flex-start;flex-direction:column}.invoice-row-actions160,.cost-saved-actions160{width:100%}.invoice-row-actions160 button,.cost-saved-actions160 button{flex:1}}
+
+/* LFA Betriebsmanagement V17 — appearance only */
+:root{
+ --bg:#f2f5f2;--panel:#fff;--panel2:#f7faf7;--panel3:#e8f0eb;
+ --green:#235640;--green2:#36795b;--green-soft:#e8f2ec;
+ --text:#18382b;--muted:#64786c;--line:#dce6de;
+ --ink:#18382b;--shadow:0 8px 28px rgba(15,49,34,.06)
+}
+.sidebar{background:#123c2c;border-right-color:#214b39;color:#f5f8f5}
+.side-brand{border-bottom-color:#315442;align-items:center}
+.side-brand strong{color:#fff;font-size:16px;line-height:1.35}
+.side-brand small{color:#b8cfc0;font-size:10px;letter-spacing:.08em}
+.side-logo,.login-logo{background:#e0eddc;color:#153e2d;font-weight:900;letter-spacing:-.05em;min-width:46px;width:46px;height:46px}
+.sidebar nav button{color:#c5d8cb;transition:background .15s,color .15s}
+.sidebar nav button span{font-size:12px}
+.sidebar nav button:hover{background:#204d39;color:#fff}
+.sidebar nav button.active{background:#315f46;color:#fff;box-shadow:inset 3px 0 0 #b4d69c}
+.topbar{background:rgba(250,253,250,.97)}
+.top-title{color:#183e2d}
+.hero{background:linear-gradient(120deg,#123c2c 0%,#1c5039 62%,#2b6547 100%);border-color:#214d38}
+.hero h2{color:#fff;font-size:clamp(30px,3.1vw,44px);line-height:1.1}
+.hero p{color:#d5e4d8}
+.hero-kicker{color:#c0dab0}
+.hero-primary{background:#dcebcf!important;color:#153e2d!important}
+.hero-secondary{background:transparent!important;border:1px solid #719780!important;color:#fff!important}
+.hero-visual{background:radial-gradient(circle at 72% 24%,#d9bc72 0 4%,transparent 5%),linear-gradient(180deg,transparent 0 52%,#285f40 53%)}
+.field-lines{background:repeating-linear-gradient(165deg,transparent 0 18px,#769b63 19px 22px);opacity:.45}
+.sun{background:radial-gradient(circle,#e2d0a0 0,#c1a862 28%,rgba(214,185,100,.08) 60%,transparent 70%)}
+.section-kicker,.eyebrow{color:#366b4d}
+.kpi-icon{background:#e9f2e8;color:#235640}
+.kpis small,.kpis em{color:#64786c}
+button{background:#235640}
+button:hover{filter:brightness(.96)}
+button:focus-visible{outline:3px solid #83ab68;outline-offset:3px}
+.secondary,.ghost{background:#eaf0eb;color:#294b37}
+.hero-actions button:focus-visible,.sidebar button:focus-visible{outline-color:#dcebcf}
+input:focus,select:focus,textarea:focus{border-color:#36795b;box-shadow:0 0 0 3px rgba(35,86,64,.12)}
+.linkbtn{color:#235640!important}
+.result strong,.finance-total strong{color:#235640}
+.quick-grid button span{color:#235640}
+.cat.active{background:#e9f2e8;border-color:#5d8b6a;box-shadow:inset 0 0 0 1px #5d8b6a}
+.finish{background:#235640}
+.login-shell{background:radial-gradient(ellipse at 50% 25%,#e0eadd,transparent 65%)}
+.login-panel{border-top:5px solid #235640}
+.login-brandline{color:#56745e;font-size:12px;letter-spacing:.08em;margin:0 0 20px}
+.login-panel .eyebrow{font-size:10px}
+.lfa-version{display:inline-block;margin-top:10px;font-size:11px;color:#718573}
+.management-tabs152 button.active,.diesel-subtabs153 button.active,
+.invoice-step160>span,.invoice-step153>span{background:#235640}
+.invoice-editor160{border-top-color:#235640}
+.invoice-send160{background:#235640!important}
+.invoice-style-badge160,.invoice-pos-number160{color:#235640;background:#e9f2e8}
+@media(max-width:760px){
+ .side-brand strong{font-size:14px}
+ .hero-copy{padding:25px}
+ .hero-actions{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){.sidebar nav button{transition:none}}
+

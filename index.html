@@ -3,23 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111713">
+<meta name="theme-color" content="#123c2c">
 <link rel="manifest" href="manifest.json"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="style.css?v=16.0">
-<title>FarmManager</title>
+<link rel="stylesheet" href="style.css?v=17.0">
+<title>LFA Betriebsmanagement</title>
 </head>
 <body>
 <header class="brandbar">
   <div class="brand">
-    <div class="brandmark">FM</div>
-    <div><h1>FarmManager</h1><p>Landwirtschaft · Organisation</p></div>
+    <div class="brandmark">LFA</div>
+    <div><h1>LFA Betriebsmanagement</h1><p>LFA – Land · Forst · Agrar</p></div>
   </div>
 </header>
 
 <main>
 <section id="auth" class="login-shell">
   <div class="login-panel">
-    <div class="login-logo">FM</div>
+    <div class="login-logo">LFA</div>
+    <p class="login-brandline">LFA – Land · Forst · Agrar</p>
     <p class="eyebrow">BETRIEBSMANAGEMENT</p>
     <h2>Willkommen zurück</h2>
     <p class="muted">Melde dich mit deinem Team-Konto an.</p>
@@ -27,12 +28,13 @@
     <label>Passwort</label><input id="password" type="password" placeholder="••••••••">
     <button id="login">Anmelden</button>
     <p id="authmsg" class="muted"></p>
+    <span class="lfa-version">LFA Betriebsmanagement · V17</span>
   </div>
 </section>
 
 <div id="app" hidden>
   <aside class="sidebar">
-    <div class="side-brand"><div class="side-logo">FM</div><div><strong>FarmManager</strong><small>BETRIEBSMANAGEMENT</small></div></div>
+    <div class="side-brand"><div class="side-logo">LFA</div><div><strong>LFA Betriebsmanagement</strong><small>Land · Forst · Agrar</small></div></div>
     <nav>
       <button class="active" data-page="start">⌂<span>Dashboard</span></button>
       <button data-page="arbeitszeit">◷<span>Arbeitszeit</span></button>
@@ -484,7 +486,7 @@
 </div>
 </main>
 
-<footer>FarmManager · Gemeinsame Team-Datenbank</footer>
+<footer>LFA Betriebsmanagement · Gemeinsame Team-Datenbank</footer>
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js?v=7.1"></script><script src="features.js?v=13.0"></script><script src="fieldfix5.js?v=13.6"></script><script src="uiupdate.js?v=13.7"></script><script src="orderupdate.js?v=13.8"></script><script src="orderfix.js?v=13.9"></script><script src="featurefix14.js?v=14.0"></script><script src="worktypes14.js?v=14.1"></script><script src="implements14.js?v=14.2"></script><script src="orderfields14.js?v=14.3"></script><script src="orderfieldsfix14.js?v=14.4"></script><script src="ordersave14.js?v=14.5"></script><script src="operations14.js?v=14.6"></script><script src="routes14.js?v=15.0"></script><script src="profilecolors14.js?v=14.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
