@@ -7,11 +7,15 @@
 <link rel="manifest" href="manifest.json"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="style.css?v=17.1">
 <title>LFA Betriebsmanagement</title>
+<link rel="icon" type="image/svg+xml" href="/lfa-logo.svg">
+<link rel="apple-touch-icon" href="/api/lfa-icon?v=1">
+<meta name="apple-mobile-web-app-title" content="LFA">
+<style>.side-logo,.login-logo,.brandmark{background:#fff!important;overflow:hidden}.lfa-brand-image{display:block;width:100%;height:100%;object-fit:contain}.login-logo{width:160px!important;height:160px!important}.side-logo{width:64px!important;height:64px!important;flex-shrink:0}</style>
 </head>
 <body>
 <header class="brandbar">
   <div class="brand">
-    <div class="brandmark">LFA</div>
+    <div class="brandmark"><img class="lfa-brand-image" src="/lfa-logo.svg" alt="LFA – Land · Forst · Agrar"></div>
     <div><h1>LFA Betriebsmanagement</h1><p>LFA – Land · Forst · Agrar</p></div>
   </div>
 </header>
@@ -19,7 +23,7 @@
 <main>
 <section id="auth" class="login-shell">
   <div class="login-panel">
-    <div class="login-logo">LFA</div>
+    <div class="login-logo"><img class="lfa-brand-image" src="/lfa-logo.svg" alt="LFA – Land · Forst · Agrar"></div>
     <p class="login-brandline">LFA – Land · Forst · Agrar</p>
     <p class="eyebrow">BETRIEBSMANAGEMENT</p>
     <h2>Willkommen zurück</h2>
@@ -34,7 +38,7 @@
 
 <div id="app" hidden>
   <aside class="sidebar">
-    <div class="side-brand"><div class="side-logo">LFA</div><div><strong>LFA Betriebsmanagement</strong><small>Land · Forst · Agrar</small></div><button id="mobileLogout" type="button" onclick="document.getElementById('logout').click()">Abmelden</button></div>
+    <div class="side-brand"><div class="side-logo"><img class="lfa-brand-image" src="/lfa-logo.svg" alt="LFA – Land · Forst · Agrar"></div><div><strong>LFA Betriebsmanagement</strong><small>Land · Forst · Agrar</small></div><button id="mobileLogout" type="button" onclick="document.getElementById('logout').click()">Abmelden</button></div>
     <nav>
       <button class="active" data-page="start">⌂<span>Dashboard</span></button>
       <button data-page="arbeitszeit">◷<span>Arbeitszeit</span></button>
